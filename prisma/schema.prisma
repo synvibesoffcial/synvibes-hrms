@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id           String    @id             // Clerk user ID (use as primary key)
+  email        String    @unique
+  firstName    String
+  lastName     String
+  username     String?   @unique
+  role         Role?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  employee     Employee?
+}
+
+model Employee {
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  user         User      @relation(fields: [userId], references: [id])
+  department   String
+  position     String
+  joinDate     DateTime
+  contactInfo  String?
+
+  leaves       LeaveRequest[]
+  attendance   Attendance[]
+  payslips     Payslip[]
+}
+
+model LeaveRequest {
+  id           String    @id @default(cuid())
+  employee     Employee  @relation(fields: [employeeId], references: [id])
+  employeeId   String
+  startDate    DateTime
+  endDate      DateTime
+  reason       String
+  status       LeaveStatus @default(PENDING)
+  createdAt    DateTime    @default(now())
+}
+
+model Attendance {
+  id           String    @id @default(cuid())
+  employee     Employee  @relation(fields: [employeeId], references: [id])
+  employeeId   String
+  date         DateTime
+  checkIn      DateTime?
+  checkOut     DateTime?
+  markedBy     String     // 'self' or 'hr'
+}
+
+model Payslip {
+  id           String    @id @default(cuid())
+  employee     Employee  @relation(fields: [employeeId], references: [id])
+  employeeId   String
+  month        String
+  year         Int
+  fileUrl      String
+  generatedAt  DateTime  @default(now())
+}
+
+model SystemLog {
+  id           String    @id @default(cuid())
+  action       String
+  performedBy  String
+  timestamp    DateTime  @default(now())
+}
+
+enum Role {
+  admin
+  hr
+  employee
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
