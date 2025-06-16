@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { requestLeave } from "../empActions";
+import { requestLeave } from "../actions";
 
 interface Leave {
   id: string;

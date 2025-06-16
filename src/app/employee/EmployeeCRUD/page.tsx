@@ -1,13 +1,21 @@
 "use client";
 import { useState } from "react";
-import { updateEmployee, deleteEmployee } from "../empActions";
+import { updateEmployee, deleteEmployee } from "../actions";
+import type { Employee } from "../page";
 
-export default function EmployeeCRUD({ employee }) {
+export default function EmployeeCRUD({ employee }: { employee: Employee }) {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
+    empId: employee.empId,
+    systemRole: employee.systemRole,
+    firstName: employee.firstName,
+    lastName: employee.lastName,
     department: employee.department,
     position: employee.position,
     joinDate: employee.joinDate,
+    dateOfBirth: employee.dateOfBirth,
+    gender: employee.gender || "",
+    address: employee.address || "",
     contactInfo: employee.contactInfo || "",
   });
 
@@ -17,12 +25,63 @@ export default function EmployeeCRUD({ employee }) {
         className="border p-4 rounded mb-4"
         onSubmit={async e => {
           e.preventDefault();
-          await updateEmployee(employee.id, form);
+          await updateEmployee(employee.id, {
+            ...form,
+            joinDate: form.joinDate instanceof Date ? form.joinDate.toISOString() : form.joinDate,
+            dateOfBirth: form.dateOfBirth instanceof Date ? form.dateOfBirth.toISOString() : form.dateOfBirth,
+          });
           setEditing(false);
           window.location.reload();
         }}
       >
         <h2 className="font-bold text-lg mb-2">Edit Profile</h2>
+        <input
+          type="text"
+          value={form.empId}
+          onChange={e => setForm(f => ({ ...f, empId: e.target.value }))}
+          placeholder="Employee ID"
+          required
+        />
+        <select
+          value={form.systemRole}
+          onChange={e => setForm(f => ({ ...f, systemRole: e.target.value as Employee["systemRole"] }))}
+          required
+        >
+          <option value="">Select Role</option>
+          <option value="admin">Admin</option>
+          <option value="hr">HR</option>
+          <option value="employee">Employee</option>
+        </select>
+        <input
+          type="text"
+          value={form.firstName}
+          onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))}
+          placeholder="First Name"
+          required
+        />
+        <input
+          type="text"
+          value={form.lastName}
+          onChange={e => setForm(f => ({ ...f, lastName: e.target.value }))}
+          placeholder="Last Name"
+          required
+        />
+        <input
+          type="date"
+          value={form.dateOfBirth ? (form.dateOfBirth instanceof Date ? form.dateOfBirth.toISOString().slice(0, 10) : form.dateOfBirth.slice(0, 10)) : ""}
+          onChange={e => setForm(f => ({ ...f, dateOfBirth: e.target.value }))}
+          required
+        />
+        <select
+          value={form.gender}
+          onChange={e => setForm(f => ({ ...f, gender: e.target.value }))}
+          required
+        >
+          <option value="">Select Gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
         <input
           type="text"
           value={form.department}
@@ -39,9 +98,15 @@ export default function EmployeeCRUD({ employee }) {
         />
         <input
           type="date"
-          value={form.joinDate}
+          value={form.joinDate ? (form.joinDate instanceof Date ? form.joinDate.toISOString().slice(0, 10) : form.joinDate.slice(0, 10)) : ""}
           onChange={e => setForm(f => ({ ...f, joinDate: e.target.value }))}
           required
+        />
+        <input
+          type="text"
+          value={form.address}
+          onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
+          placeholder="Address"
         />
         <input
           type="text"

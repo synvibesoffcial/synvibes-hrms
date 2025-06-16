@@ -9,6 +9,9 @@ import { ClerkProvider,
  } from "@clerk/nextjs";
 import "./globals.css";
 
+import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
 //   subsets: ["latin"],
@@ -33,18 +36,24 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className="flex">
-           <header className="flex justify-end items-center p-4 gap-4 h-16">
-            <SignedOut>
-              <SignInButton />
-              <SignUpButton />
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-          </header>
-          <div className="flex-1">
-            <main className="p-4">{children}</main>
-          </div>
+          <SidebarProvider>
+            <AppSidebar />
+            <div className="flex flex-col flex-1">
+              <header className="flex justify-end items-center p-4 gap-4 h-16">
+                <SignedOut>
+                  <SignInButton />
+                  <SignUpButton />
+                </SignedOut>
+                <SignedIn>
+                  <UserButton />
+                </SignedIn>
+              </header>
+              <main className="p-4">
+                <SidebarTrigger />
+                {children}
+              </main>
+            </div>
+          </SidebarProvider>
         </body>
       </html>
     </ClerkProvider>

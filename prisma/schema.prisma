@@ -32,9 +32,16 @@ model Employee {
   id           String    @id @default(cuid())
   userId       String    @unique
   user         User      @relation(fields: [userId], references: [id])
+  empId        String    @unique         // Organization-specific employee ID
+  systemRole   Role                         // Duplicates User.role for redundancy if needed
+  firstName    String
+  lastName     String
   department   String
   position     String
   joinDate     DateTime
+  dateOfBirth  DateTime
+  gender       String
+  address      String?
   contactInfo  String?
 
   leaves       LeaveRequest[]

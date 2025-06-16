@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { markAttendance } from "../empActions";
+import { markAttendance } from "../actions";
 
 interface Attendance {
   id: string;

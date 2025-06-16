@@ -5,6 +5,11 @@ import { useRouter } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { checkHRAuthorization } from "./actions";
 
+import EmployeesPage from "./employees/page";
+import AttendancePage from "./attendance/page";
+import LeavesPage from "./leaves/page";
+import PayslipsPage from "./payslips/page";
+
 export default function HRDashboard() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -49,16 +54,16 @@ export default function HRDashboard() {
           <TabsTrigger value="payslips">Payslip Management</TabsTrigger>
         </TabsList>
         <TabsContent value="employees">
-          <iframe src="/hr/employees" className="w-full h-[800px] border-0" />
+          <EmployeesPage />
         </TabsContent>
         <TabsContent value="leaves">
-          <iframe src="/hr/leaves" className="w-full h-[800px] border-0" />
+          <LeavesPage />
         </TabsContent>
         <TabsContent value="attendance">
-          <iframe src="/hr/attendance" className="w-full h-[800px] border-0" />
+          <AttendancePage />
         </TabsContent>
         <TabsContent value="payslips">
-          <iframe src="/hr/payslips" className="w-full h-[800px] border-0" />
+          <PayslipsPage />
         </TabsContent>
       </Tabs>
     </div>
