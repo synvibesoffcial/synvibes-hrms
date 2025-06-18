@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
@@ -16,12 +10,12 @@ datasource db {
 
 
 model User {
-  id           String    @id             // Clerk user ID (use as primary key)
+  id           String    @id @default(cuid()) // Changed from Clerk ID to cuid()
   email        String    @unique
+  password     String // Added for custom auth
   firstName    String
   lastName     String
-  username     String?   @unique
-  role         Role?
+  role         Role? // Role stored in DB
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
@@ -61,13 +55,17 @@ model LeaveRequest {
 }
 
 model Attendance {
-  id           String    @id @default(cuid())
-  employee     Employee  @relation(fields: [employeeId], references: [id])
-  employeeId   String
-  date         DateTime
-  checkIn      DateTime?
-  checkOut     DateTime?
-  markedBy     String     // 'self' or 'hr'
+  id              String    @id @default(cuid())
+  employee        Employee  @relation(fields: [employeeId], references: [id])
+  employeeId      String
+  date            DateTime
+  checkIn         DateTime?
+  checkInLatitude  Float?    // Latitude for check-in
+  checkInLongitude Float?    // Longitude for check-in
+  checkOut        DateTime?
+  checkOutLatitude Float?    // Latitude for check-out
+  checkOutLongitude Float?   // Longitude for check-out
+  markedBy        String    // 'self' or 'hr'
 }
 
 model Payslip {
