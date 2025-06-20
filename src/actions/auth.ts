@@ -5,8 +5,11 @@ import { encrypt } from "@/lib/session";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { Role } from "@/generated/prisma";
+import { redirect } from "next/navigation";
+import { deleteSession } from '@/lib/session';
 
-export async function signup(prevState: FormState, formData: FormData): Promise<FormState> {
+
+export async function signup(prevState: FormState, formData: FormData): Promise<FormState | void> {
   // Validate form fields
   const validatedFields = SignupFormSchema.safeParse({
     name: formData.get("name"),
@@ -49,10 +52,10 @@ export async function signup(prevState: FormState, formData: FormData): Promise<
     path: "/",
     maxAge: 60 * 60 * 24 * 7, // 7 days
   });
-  return undefined;
+  redirect("/user");
 }
 
-export async function signin(prevState: FormState, formData: FormData): Promise<FormState> {
+export async function signin(prevState: FormState, formData: FormData): Promise<FormState | void> {
   // Validate form fields
   const validatedFields = SigninFormSchema.safeParse({
     email: formData.get("email"),
@@ -84,7 +87,7 @@ export async function signin(prevState: FormState, formData: FormData): Promise<
     path: "/",
     maxAge: 60 * 60 * 24 * 7, // 7 days
   });
-  return undefined;
+  redirect("/user");
 }
 
 export async function getAllUsers() {
@@ -124,3 +127,8 @@ export async function updateUserRole(userId: string, newRole: Role) {
   }
   return user;
 } 
+
+export async function logout() {
+  await deleteSession()
+  redirect('/')
+}

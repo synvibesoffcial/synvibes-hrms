@@ -1,5 +1,6 @@
 import 'server-only';
 import { SignJWT, jwtVerify } from 'jose';
+import { cookies } from 'next/headers';
 
 const secretKey = process.env.SESSION_SECRET;
 if (!secretKey) throw new Error('SESSION_SECRET is not set');
@@ -24,3 +25,8 @@ export async function decrypt(session: string | undefined = '') {
     return null;
   }
 } 
+
+export async function deleteSession() {
+  const cookieStore = await cookies()
+  cookieStore.delete('session')
+}
