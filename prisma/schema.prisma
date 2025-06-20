@@ -8,45 +8,62 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id           String    @id @default(cuid()) // Changed from Clerk ID to cuid()
-  email        String    @unique
-  password     String // Added for custom auth
+  id           String   @id @default(cuid())
+  email        String   @unique
+  password     String
   firstName    String
   lastName     String
-  role         Role? // Role stored in DB
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  role         Role?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   employee     Employee?
 }
 
 model Employee {
-  id           String    @id @default(cuid())
-  userId       String    @unique
-  user         User      @relation(fields: [userId], references: [id])
-  empId        String    @unique         // Organization-specific employee ID
-  systemRole   Role                         // Duplicates User.role for redundancy if needed
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id])
+  empId        String   @unique // Organization-specific employee ID
   firstName    String
   lastName     String
-  department   String
-  position     String
   joinDate     DateTime
   dateOfBirth  DateTime
   gender       String
   address      String?
   contactInfo  String?
 
+  teamId       String?
+  team         Team?     @relation(fields: [teamId], references: [id])
+
   leaves       LeaveRequest[]
   attendance   Attendance[]
   payslips     Payslip[]
 }
 
+model Department {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+
+  teams       Team[]
+}
+
+model Team {
+  id            String      @id @default(cuid())
+  name          String
+  description   String?
+  departmentId  String
+  department    Department  @relation(fields: [departmentId], references: [id])
+
+  employees     Employee[]
+}
+
 model LeaveRequest {
-  id           String    @id @default(cuid())
-  employee     Employee  @relation(fields: [employeeId], references: [id])
+  id           String      @id @default(cuid())
   employeeId   String
+  employee     Employee    @relation(fields: [employeeId], references: [id])
   startDate    DateTime
   endDate      DateTime
   reason       String
@@ -55,23 +72,23 @@ model LeaveRequest {
 }
 
 model Attendance {
-  id              String    @id @default(cuid())
-  employee        Employee  @relation(fields: [employeeId], references: [id])
-  employeeId      String
-  date            DateTime
-  checkIn         DateTime?
-  checkInLatitude  Float?    // Latitude for check-in
-  checkInLongitude Float?    // Longitude for check-in
-  checkOut        DateTime?
-  checkOutLatitude Float?    // Latitude for check-out
-  checkOutLongitude Float?   // Longitude for check-out
-  markedBy        String    // 'self' or 'hr'
+  id               String   @id @default(cuid())
+  employeeId       String
+  employee         Employee @relation(fields: [employeeId], references: [id])
+  date             DateTime
+  checkIn          DateTime?
+  checkInLatitude  Float?
+  checkInLongitude Float?
+  checkOut         DateTime?
+  checkOutLatitude Float?
+  checkOutLongitude Float?
+  markedBy         String
 }
 
 model Payslip {
   id           String    @id @default(cuid())
-  employee     Employee  @relation(fields: [employeeId], references: [id])
   employeeId   String
+  employee     Employee  @relation(fields: [employeeId], references: [id])
   month        String
   year         Int
   fileUrl      String
@@ -79,13 +96,14 @@ model Payslip {
 }
 
 model SystemLog {
-  id           String    @id @default(cuid())
+  id           String   @id @default(cuid())
   action       String
   performedBy  String
-  timestamp    DateTime  @default(now())
+  timestamp    DateTime @default(now())
 }
 
 enum Role {
+  superadmin
   admin
   hr
   employee

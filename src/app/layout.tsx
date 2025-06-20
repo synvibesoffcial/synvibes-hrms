@@ -2,9 +2,6 @@
 // import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-// Removed: import { AppSidebar } from "@/components/app-sidebar";
-// Removed: import { SidebarProvider } from "@/components/ui/sidebar";
-// Removed: import { SidebarTrigger } from "@/components/ui/sidebar";
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
 //   subsets: ["latin"],
@@ -28,12 +25,10 @@ export default function RootLayout({
   return (
       <html lang="en">
         <body className="flex">
-          {/* Removed SidebarProvider and AppSidebar */}
           <div className="flex flex-col flex-1">
             <header className="flex justify-end items-center p-4 gap-4 h-16">
             </header>
             <main className="p-4">
-              {/* Removed SidebarTrigger */}
               {children}
             </main>
           </div>
