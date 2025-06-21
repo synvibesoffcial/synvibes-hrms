@@ -12,11 +12,13 @@ export interface User {
 }
 
 const roleOptions = [
+  { value: "admin", label: "Admin" },
   { value: "hr", label: "HR" },
   { value: "employee", label: "Employee" },
+//   { value: "superadmin", label: "Super Admin" },
 ];
 
-export default function AdminUserTable({ users }: { users: User[] }) {
+export default function SuperAdminUserTable({ users }: { users: User[] }) {
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
   const [userRoles, setUserRoles] = useState<Record<string, Role | null>>(() =>
     Object.fromEntries(users.map((u) => [u.id, u.role]))

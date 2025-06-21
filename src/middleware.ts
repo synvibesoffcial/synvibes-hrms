@@ -8,8 +8,8 @@ const publicRoutes = ['/sign-in', '/sign-up', '/']
 const protectedRoutes = ["/admin", "/employee", "/hr"]
 
 const roleBasedRoutes: Record<string, string[]> = {
+  superadmin: ['/superadmin'],
   admin: ['/admin'],
-  superadmin: ['/admin'],
   hr: ['/hr'],
   employee: ['/employee'],
 }

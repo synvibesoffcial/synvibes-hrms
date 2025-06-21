@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { decrypt } from "@/lib/session";
+import prisma from "./db";
 
 export async function verifySession() {
   const cookieStore = await cookies();
@@ -11,4 +12,19 @@ export async function verifySession() {
   } catch {
     return null;
   }
+}
+
+export async function getEmployeeByUserId(userId: string) {
+  const employee = await prisma.employee.findUnique({ where: { userId } });
+  return employee;
+}
+
+export async function getUserById(id: string) {
+  const user = await prisma.user.findUnique({ where: { id } });
+  return user;
+}
+
+export async function getUsers() {
+  const users = await prisma.user.findMany();
+  return users;
 } 

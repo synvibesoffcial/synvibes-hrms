@@ -26,8 +26,8 @@ export default function RootLayout({
       <html lang="en">
         <body className="flex">
           <div className="flex flex-col flex-1">
-            <header className="flex justify-end items-center p-4 gap-4 h-16">
-            </header>
+            {/* <header className="flex justify-end items-center p-4 gap-4 h-16">
+            </header> */}
             <main className="p-4">
               {children}
             </main>

@@ -13,8 +13,9 @@ export default async function UserPage() {
 
   if (session.role) {
     switch (session.role) {
-      case "admin":
       case "superadmin":
+        return redirect("/superadmin");
+      case "admin":
         return redirect("/admin");
       case "hr":
         return redirect("/hr");
