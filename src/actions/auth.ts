@@ -8,7 +8,12 @@ import { Role } from "@/generated/prisma";
 import { redirect } from "next/navigation";
 import { deleteSession } from '@/lib/session';
 
-
+const roleBasedRedirects: Record<string, string> = {
+  superadmin: '/superadmin',
+  admin: '/admin',
+  hr: '/hr',
+  employee: '/employee',
+};
 export async function signup(prevState: FormState, formData: FormData): Promise<FormState | void> {
   // Validate form fields
   const validatedFields = SignupFormSchema.safeParse({
@@ -87,7 +92,9 @@ export async function signin(prevState: FormState, formData: FormData): Promise<
     path: "/",
     maxAge: 60 * 60 * 24 * 7, // 7 days
   });
-  redirect("/user");
+
+  const redirectPath = user.role && roleBasedRedirects[user.role] ? roleBasedRedirects[user.role] : '/user';
+  redirect(redirectPath);
 }
 
 export async function getAllUsers() {

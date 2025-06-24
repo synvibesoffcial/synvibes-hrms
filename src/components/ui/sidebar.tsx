@@ -21,7 +21,7 @@ const roleBasedLinks = {
     { href: "/user", label: "User" },
   ],
   employee: [
-    { href: "/employee", label: "Employee" },
+    { href: "/employee", label: "Overview" },
     { href: "/user", label: "User" },
   ],
   // Fallback for users without role or null role
