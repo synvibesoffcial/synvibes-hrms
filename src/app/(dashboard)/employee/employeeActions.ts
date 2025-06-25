@@ -71,115 +71,66 @@ export async function createLeaveRequest(employeeId: string, prevState: FormStat
       },
     });
 
-    revalidatePath('/employee/dashboard');
+    revalidatePath('/employee/leaveSection');
     return { message: 'Leave request submitted successfully!' };
   } catch {
     return { message: 'Failed to submit leave request. Please try again.' };
   }
 }
 
-export async function checkIn(employeeId: string, latitude?: number, longitude?: number) {
-  try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    // Check if there's already an attendance record for today
-    const existingAttendance = await prisma.attendance.findFirst({
-      where: {
-        employeeId,
-        date: {
-          gte: today,
-          lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-        },
-      },
-    });
-
-    if (existingAttendance) {
-      if (existingAttendance.checkIn) {
-        return { message: 'You have already checked in today.' };
-      }
-      
-      // Update existing record with check-in
-      await prisma.attendance.update({
-        where: { id: existingAttendance.id },
-        data: {
-          checkIn: new Date(),
-          checkInLatitude: latitude,
-          checkInLongitude: longitude,
-        },
-      });
-    } else {
-      // Create new attendance record
-      await prisma.attendance.create({
-        data: {
-          employeeId,
-          date: new Date(),
-          checkIn: new Date(),
-          checkInLatitude: latitude,
-          checkInLongitude: longitude,
-          markedBy: employeeId,
-        },
-      });
-    }
-
-    revalidatePath('/employee/dashboard');
-    return { message: 'Checked in successfully!' };
-  } catch {
-    return { message: 'Failed to check in. Please try again.' };
-  }
-}
-
-export async function checkOut(employeeId: string, latitude?: number, longitude?: number) {
-  try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    // Find today's attendance record
-    const existingAttendance = await prisma.attendance.findFirst({
-      where: {
-        employeeId,
-        date: {
-          gte: today,
-          lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-        },
-      },
-    });
-
-    if (!existingAttendance) {
-      return { message: 'No check-in record found for today. Please check in first.' };
-    }
-
-    if (existingAttendance.checkOut) {
-      return { message: 'You have already checked out today.' };
-    }
-
-    // Update with check-out
-    await prisma.attendance.update({
-      where: { id: existingAttendance.id },
-      data: {
-        checkOut: new Date(),
-        checkOutLatitude: latitude,
-        checkOutLongitude: longitude,
-      },
-    });
-
-    revalidatePath('/employee/dashboard');
-    return { message: 'Checked out successfully!' };
-  } catch {
-    return { message: 'Failed to check out. Please try again.' };
-  }
-}
-
-export async function getTodayAttendance(employeeId: string) {
+export async function markAttendance(
+  employeeId: string,
+  type: "checkin" | "checkout",
+  location?: { latitude: number; longitude: number }
+) {
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const dateStr = today.toISOString().slice(0, 10);
 
   const attendance = await prisma.attendance.findFirst({
     where: {
       employeeId,
       date: {
-        gte: today,
-        lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
+        gte: new Date(dateStr + "T00:00:00.000Z"),
+        lte: new Date(dateStr + "T23:59:59.999Z"),
+      },
+    },
+  });
+
+  if (type === "checkin" && !attendance) {
+    await prisma.attendance.create({
+      data: {
+        employeeId,
+        date: today,
+        checkIn: today,
+        checkInLatitude: location?.latitude,
+        checkInLongitude: location?.longitude,
+        markedBy: "self",
+      },
+    });
+  } else if (type === "checkout" && attendance && !attendance.checkOut) {
+    await prisma.attendance.update({
+      where: { id: attendance.id },
+      data: {
+        checkOut: today,
+        checkOutLatitude: location?.latitude,
+        checkOutLongitude: location?.longitude,
+      },
+    });
+  }
+}
+
+
+
+export async function getTodayAttendance(employeeId: string) {
+  const today = new Date();
+  const dateStr = today.toISOString().slice(0, 10);
+
+  const attendance = await prisma.attendance.findFirst({
+    where: {
+      employeeId,
+      date: {
+        gte: new Date(dateStr + "T00:00:00.000Z"),
+        lte: new Date(dateStr + "T23:59:59.999Z"),
       },
     },
   });
