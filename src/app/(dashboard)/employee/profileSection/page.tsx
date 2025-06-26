@@ -4,6 +4,9 @@ import { getEmployeeByUserId } from "@/lib/dal"
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { User, Briefcase } from "lucide-react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft } from "lucide-react"
 
 export default async function ProfileSectionPage() {
   const cookieStore = await cookies()
@@ -23,6 +26,14 @@ export default async function ProfileSectionPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
+      <div className="flex items-center gap-3 mt-8">
+        <Link href="/employee/dashboard/">
+          <Button variant="outline" size="sm">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
+        </Link>
+      </div>
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-8">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center">

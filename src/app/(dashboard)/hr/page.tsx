@@ -1,8 +1,41 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Users, Clock, FileText, BarChart3, Calendar, Settings } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { 
+  Users, 
+  Clock, 
+  FileText, 
+  BarChart3, 
+  Calendar, 
+  Settings, 
+  ExternalLink,
+  Building,
+  UserCog 
+} from "lucide-react"
+import { getAllEmployees, getHRDashboardStats } from "@/actions/hr"
+import { cookies } from 'next/headers'
+import { decrypt } from '@/lib/session'
+import { redirect } from 'next/navigation'
+import Link from 'next/link'
 
-const HRPage = () => {
+const HRPage = async () => {
+  // Check HR authorization
+  const cookieStore = await cookies();
+  const cookie = cookieStore.get('session')?.value;
+  const session = await decrypt(cookie);
+
+  if (!session?.userId || session?.role !== 'hr') {
+    redirect('/sign-in');
+  }
+
+  // Fetch dashboard data
+  const [employees, stats] = await Promise.all([
+    getAllEmployees(),
+    getHRDashboardStats(),
+  ]);
+
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-8 pt-8">
@@ -22,7 +55,7 @@ const HRPage = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Employees</p>
-                <p className="text-2xl font-bold text-gray-900">248</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalEmployees}</p>
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                 <Users className="w-6 h-6 text-purple-600" />
@@ -36,7 +69,7 @@ const HRPage = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Present Today</p>
-                <p className="text-2xl font-bold text-gray-900">234</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.presentToday}</p>
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                 <Clock className="w-6 h-6 text-green-600" />
@@ -50,7 +83,7 @@ const HRPage = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Pending Leaves</p>
-                <p className="text-2xl font-bold text-gray-900">12</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.pendingLeaves}</p>
               </div>
               <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
                 <Calendar className="w-6 h-6 text-yellow-600" />
@@ -64,7 +97,7 @@ const HRPage = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">New Hires</p>
-                <p className="text-2xl font-bold text-gray-900">8</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.newHires}</p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                 <BarChart3 className="w-6 h-6 text-blue-600" />
@@ -86,15 +119,29 @@ const HRPage = () => {
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <Users className="w-4 h-4 text-purple-600" />
+              <Link href="/hr/department-management">
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <Building className="w-4 h-4 text-purple-600" />
+                    </div>
+                    <span className="font-medium text-gray-900">Manage Departments</span>
                   </div>
-                  <span className="font-medium text-gray-900">Manage Employees</span>
+                  <ExternalLink className="w-4 h-4 text-gray-400" />
                 </div>
-                <Badge className="bg-purple-100 text-purple-800">248 Active</Badge>
-              </div>
+              </Link>
+
+              <Link href="/hr/team-management">
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <Users className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <span className="font-medium text-gray-900">Manage Teams</span>
+                  </div>
+                  <ExternalLink className="w-4 h-4 text-gray-400" />
+                </div>
+              </Link>
 
               <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
                 <div className="flex items-center gap-3">
@@ -104,7 +151,7 @@ const HRPage = () => {
                   <span className="font-medium text-gray-900">Review Leave Requests</span>
                 </div>
                 <Badge variant="outline" className="border-yellow-300 text-yellow-700">
-                  12 Pending
+                  {stats.pendingLeaves} Pending
                 </Badge>
               </div>
 
@@ -133,7 +180,7 @@ const HRPage = () => {
 
         {/* Recent Activities */}
         <Card className="border-purple-200 shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-purple-50 to-purple-100/50 border-b border-purple-200">
+          <CardHeader className="border-b border-purple-200">
             <CardTitle className="text-xl text-purple-900 flex items-center gap-2">
               <BarChart3 className="w-5 h-5" />
               Recent Activities
@@ -180,6 +227,8 @@ const HRPage = () => {
           </CardContent>
         </Card>
       </div>
+
+
     </div>
   )
 }

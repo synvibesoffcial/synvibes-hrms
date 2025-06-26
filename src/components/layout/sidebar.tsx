@@ -83,40 +83,15 @@ const roleBasedNavigation = {
     },
     {
       title: "Employee Management",
+      href: "/hr/employeeManagement",
       icon: Users,
-      items: [
-        { title: "All Employees", href: "/hr/employees" },
-        { title: "Onboarding", href: "/hr/onboarding" },
-        { title: "Departments", href: "/hr/departments" },
-        { title: "Teams", href: "/hr/teams" },
-      ],
-    },
-    {
-      title: "Attendance",
-      icon: Clock,
-      items: [
-        { title: "Daily Attendance", href: "/hr/attendance/daily" },
-        { title: "Leave Requests", href: "/hr/attendance/leaves" },
-        { title: "Time Reports", href: "/hr/attendance/reports" },
-      ],
-    },
-    {
-      title: "Payroll",
-      icon: CreditCard,
-      items: [
-        { title: "Process Payroll", href: "/hr/payroll/process" },
-        { title: "Salary Structure", href: "/hr/payroll/structure" },
-        { title: "Payslips", href: "/hr/payroll/payslips" },
-      ],
-    },
-    {
-      title: "Reports",
-      icon: BarChart3,
-      items: [
-        { title: "HR Analytics", href: "/hr/reports/analytics" },
-        { title: "Employee Reports", href: "/hr/reports/employees" },
-        { title: "Compliance", href: "/hr/reports/compliance" },
-      ],
+      // items: [
+      //   { title: "All Employees", href: "/hr/employees" },
+      //   { title: "Onboarding", href: "/hr/onboarding" },
+      //   { title: "Departments", href: "/hr/departments" },
+      //   { title: "Teams", href: "/hr/teams" },
+
+      // ],
     },
   ],
   employee: [
@@ -125,40 +100,40 @@ const roleBasedNavigation = {
       href: "/employee/dashboard",
       icon: Home,
     },
-    {
-      title: "My Profile",
-      icon: User,
-      items: [
-        { title: "Personal Info", href: "/employee/profile" },
-        { title: "Documents", href: "/employee/documents" },
-        { title: "Emergency Contacts", href: "/employee/contacts" },
-      ],
-    },
-    {
-      title: "Attendance",
-      icon: Clock,
-      items: [
-        { title: "Check In/Out", href: "/employee/attendance" },
-        { title: "My Attendance", href: "/employee/attendance/history" },
-        { title: "Leave Requests", href: "/employee/leaves" },
-      ],
-    },
-    {
-      title: "Payroll",
-      icon: CreditCard,
-      items: [
-        { title: "Payslips", href: "/employee/payslips" },
-        { title: "Tax Documents", href: "/employee/tax" },
-      ],
-    },
-    {
-      title: "Team",
-      icon: Building,
-      items: [
-        { title: "My Team", href: "/employee/team" },
-        { title: "Directory", href: "/employee/directory" },
-      ],
-    },
+    // {
+    //   title: "My Profile",
+    //   icon: User,
+    //   items: [
+    //     { title: "Personal Info", href: "/employee/profile" },
+    //     { title: "Documents", href: "/employee/documents" },
+    //     { title: "Emergency Contacts", href: "/employee/contacts" },
+    //   ],
+    // },
+    // {
+    //   title: "Attendance",
+    //   icon: Clock,
+    //   items: [
+    //     { title: "Check In/Out", href: "/employee/attendance" },
+    //     { title: "My Attendance", href: "/employee/attendance/history" },
+    //     { title: "Leave Requests", href: "/employee/leaves" },
+    //   ],
+    // },
+    // {
+    //   title: "Payroll",
+    //   icon: CreditCard,
+    //   items: [
+    //     { title: "Payslips", href: "/employee/payslips" },
+    //     { title: "Tax Documents", href: "/employee/tax" },
+    //   ],
+    // },
+    // {
+    //   title: "Team",
+    //   icon: Building,
+    //   items: [
+    //     { title: "My Team", href: "/employee/team" },
+    //     { title: "Directory", href: "/employee/directory" },
+    //   ],
+    // },
   ],
   default: [
     {
