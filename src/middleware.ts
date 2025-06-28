@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { decrypt } from '@/lib/session';
 
 // Define public routes (accessible without authentication)
-const publicRoutes = ['/sign-in', '/sign-up', '/'];
+const publicRoutes = ['/sign-in', '/sign-up', '/', '/accept-invitation', '/onboarding'];
 
 // Define protected routes with role-based access
 const protectedRoutes = ['/admin', '/employee', '/hr', '/superadmin'];
@@ -17,8 +17,8 @@ const roleBasedRedirects: Record<string, string> = {
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  const isPublicRoute = publicRoutes.includes(path);
-  const isProtectedRoute = protectedRoutes.includes(path);
+  const isPublicRoute = publicRoutes.includes(path) || path.startsWith('/accept-invitation') || path.startsWith('/onboarding');
+  const isProtectedRoute = protectedRoutes.some(route => path.startsWith(route));
   const sessionCookie = request.cookies.get('session')?.value;
 
   // Redirect authenticated users from public routes to their role-specific page or /user

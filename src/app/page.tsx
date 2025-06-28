@@ -15,7 +15,7 @@ export default function Home() {
             <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">S</span>
             </div>
-            <span className="text-xl font-bold text-purple-900">Synvibes HRMS</span>
+            <span className="text-xl font-bold text-purple-900">SynFlow</span>
           </div>
           <div className="flex items-center space-x-4">
             <Link href="/sign-in">
@@ -34,16 +34,16 @@ export default function Home() {
         {/* Hero Section */}
         <section className="container mx-auto px-4 py-16 text-center">
           <div className="max-w-4xl mx-auto">
-            <Badge className="mb-6 bg-purple-100 text-purple-800 hover:bg-purple-200">#1 HR Management System</Badge>
+            <Badge className="mb-6 bg-purple-100 text-purple-800 hover:bg-purple-200">Minimal HR Management System</Badge>
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-              Streamline Your <span className="text-purple-600">HR Management</span> with Confidence
+              Streamline Your <span className="text-purple-600">HR Management</span> sophisticated Managing
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
               Transform your human resources operations with our comprehensive HRMS platform. Manage employees, track
               attendance, and process payroll seamlessly with 24/7 access to powerful HR management tools designed for
               modern businesses.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+            {/* <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <Link href="/sign-up">
                 <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 text-lg">
                   Start Free Trial
@@ -56,7 +56,7 @@ export default function Home() {
               >
                 Watch Demo
               </Button>
-            </div>
+            </div> */}
 
             {/* Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
@@ -237,7 +237,7 @@ export default function Home() {
         </section>
 
         {/* CTA Section */}
-        <section className="bg-purple-600 py-20">
+        {/* <section className="bg-purple-600 py-20">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-4xl font-bold text-white mb-4">Ready to Transform Your HR Management?</h2>
             <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
@@ -259,7 +259,7 @@ export default function Home() {
               </Button>
             </div>
           </div>
-        </section>
+        </section> */}
       </main>
 
       {/* Footer */}

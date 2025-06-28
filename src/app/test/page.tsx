@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { logout } from "@/actions/auth";
 
 export default function GeolocationTestPage() {
     const [location, setLocation] = useState<{
@@ -11,6 +12,7 @@ export default function GeolocationTestPage() {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [retryCount, setRetryCount] = useState(0);
+    const [sessionClearing, setSessionClearing] = useState(false);
 
     const getLocation = async () => {
         setLoading(true);
@@ -42,11 +44,13 @@ export default function GeolocationTestPage() {
                 timestamp: position.timestamp, // When location was fetched
             });
             setRetryCount(0); // Reset retry count on success
-        } catch (err: any) {
+        } catch (err: unknown) {
             let errorMessage = "Failed to get location. Please allow location access.";
-            if (err.code === 1) errorMessage = "Location access denied by user.";
-            if (err.code === 2) errorMessage = "Location unavailable. Try moving to an open area.";
-            if (err.code === 3) errorMessage = "Location request timed out.";
+            if (err instanceof GeolocationPositionError) {
+                if (err.code === 1) errorMessage = "Location access denied by user.";
+                if (err.code === 2) errorMessage = "Location unavailable. Try moving to an open area.";
+                if (err.code === 3) errorMessage = "Location request timed out.";
+            }
             setError(errorMessage);
             console.error("Geolocation error:", err);
         } finally {
@@ -59,6 +63,20 @@ export default function GeolocationTestPage() {
         getLocation();
     };
 
+    const clearSession = async () => {
+        setSessionClearing(true);
+        try {
+            await logout();
+        } catch (error) {
+            console.error("Error clearing session:", error);
+            // Fallback: clear session client-side and reload
+            document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            window.location.href = '/';
+        } finally {
+            setSessionClearing(false);
+        }
+    };
+
     const getGoogleMapsUrl = (latitude: number, longitude: number) => {
         return `https://www.google.com/maps?q=${latitude},${longitude}`;
     };
@@ -66,6 +84,24 @@ export default function GeolocationTestPage() {
     return (
         <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-100">
             <h1 className="text-2xl font-bold mb-4">Geolocation Test</h1>
+            
+            {/* Session Management Section */}
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <h2 className="text-lg font-semibold mb-2 text-red-800">Session Management</h2>
+                <p className="text-sm text-red-600 mb-3">
+                    Use this button to clear your current session if you&apos;re experiencing redirect issues 
+                    due to a deleted user account.
+                </p>
+                <button
+                    onClick={clearSession}
+                    disabled={sessionClearing}
+                    className="bg-red-600 text-white px-4 py-2 rounded disabled:opacity-50 hover:bg-red-700 transition-colors"
+                >
+                    {sessionClearing ? "Clearing Session..." : "Clear Session & Logout"}
+                </button>
+            </div>
+
+            {/* Geolocation Section */}
             <div className="space-x-2">
                 <button
                     onClick={getLocation}

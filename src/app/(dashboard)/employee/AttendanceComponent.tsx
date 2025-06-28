@@ -88,7 +88,7 @@ export default function AttendanceComponent({ employeeId, attendance }: Attendan
       } else {
         setLoading(false)
       }
-    } catch (err) {
+    } catch {
       setError("Failed to mark attendance. Please try again.")
       setLoading(false)
     }

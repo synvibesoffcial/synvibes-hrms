@@ -1,8 +1,8 @@
 'use server';
 
 import prisma from '@/lib/db';
-import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
+import { LeaveRequestSchema, type FormState } from './schemas';
 
 export async function getEmployeeLeaves(employeeId: string) {
   const leaves = await prisma.leaveRequest.findMany({
@@ -29,22 +29,9 @@ export async function getEmployeePayslips(employeeId: string) {
   return payslips;
 }
 
-const LeaveRequestSchema = z.object({
-  startDate: z.string(),
-  endDate: z.string(),
-  reason: z.string().min(1, 'Reason is required'),
-});
+// Schema and types imported from schemas.ts
 
-type FormState = {
-  errors?: {
-    startDate?: string[];
-    endDate?: string[];
-    reason?: string[];
-  };
-  message?: string;
-};
-
-export async function createLeaveRequest(employeeId: string, prevState: FormState, formData: FormData) {
+export async function createLeaveRequest(employeeId: string, prevState: FormState, formData: FormData): Promise<FormState> {
   const validatedFields = LeaveRequestSchema.safeParse({
     startDate: formData.get('startDate'),
     endDate: formData.get('endDate'),
@@ -72,7 +59,10 @@ export async function createLeaveRequest(employeeId: string, prevState: FormStat
     });
 
     revalidatePath('/employee/leaveSection');
-    return { message: 'Leave request submitted successfully!' };
+    return { 
+      message: 'Leave request submitted successfully!',
+      success: true,
+    };
   } catch {
     return { message: 'Failed to submit leave request. Please try again.' };
   }

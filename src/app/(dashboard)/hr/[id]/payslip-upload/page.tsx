@@ -13,9 +13,9 @@ import Link from 'next/link'
 import PayslipUploadDialog from './PayslipUploadDialog'
 
 interface PayslipUploadPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function PayslipUploadPage({ params }: PayslipUploadPageProps) {
@@ -28,9 +28,12 @@ export default async function PayslipUploadPage({ params }: PayslipUploadPagePro
     redirect('/sign-in');
   }
 
+  // Await the params promise
+  const { id } = await params;
+
   const [employee, payslips] = await Promise.all([
-    getEmployeeById(params.id),
-    getEmployeePayslips(params.id)
+    getEmployeeById(id),
+    getEmployeePayslips(id)
   ]);
 
   if (!employee) {
@@ -54,7 +57,7 @@ export default async function PayslipUploadPage({ params }: PayslipUploadPagePro
       {/* Header */}
       <div className="mb-8 pt-8">
         <div className="flex items-center gap-3 mb-4">
-          <Link href={`/hr/${params.id}`}>
+          <Link href={`/hr/${id}`}>
             <Button variant="outline" size="sm">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Profile
@@ -137,7 +140,7 @@ export default async function PayslipUploadPage({ params }: PayslipUploadPagePro
               Upload New Payslip
             </CardTitle>
             <PayslipUploadDialog 
-              employeeId={params.id}
+              employeeId={id}
               employeeName={`${employee.firstName} ${employee.lastName}`}
             />
           </div>

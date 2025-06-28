@@ -4,7 +4,7 @@ import { SignupFormSchema, SigninFormSchema, type FormState } from "@/lib/defini
 import { encrypt } from "@/lib/session";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
-import { Role } from "@/generated/prisma";
+import { Role } from "@prisma/client";
 import { redirect } from "next/navigation";
 import { deleteSession } from '@/lib/session';
 
@@ -14,7 +14,7 @@ const roleBasedRedirects: Record<string, string> = {
   hr: '/hr',
   employee: '/employee',
 };
-export async function signup(prevState: FormState, formData: FormData): Promise<FormState | void> {
+export async function signup(prevState: FormState, formData: FormData): Promise<FormState & { success?: boolean; redirectPath?: string }> {
   // Validate form fields
   const validatedFields = SignupFormSchema.safeParse({
     name: formData.get("name"),
@@ -57,10 +57,14 @@ export async function signup(prevState: FormState, formData: FormData): Promise<
     path: "/",
     maxAge: 60 * 60 * 24 * 7, // 7 days
   });
-  redirect("/user");
+  
+  return {
+    success: true,
+    redirectPath: "/user",
+  };
 }
 
-export async function signin(prevState: FormState, formData: FormData): Promise<FormState | void> {
+export async function signin(prevState: FormState, formData: FormData): Promise<FormState & { success?: boolean; redirectPath?: string }> {
   // Validate form fields
   const validatedFields = SigninFormSchema.safeParse({
     email: formData.get("email"),
@@ -94,7 +98,11 @@ export async function signin(prevState: FormState, formData: FormData): Promise<
   });
 
   const redirectPath = user.role && roleBasedRedirects[user.role] ? roleBasedRedirects[user.role] : '/user';
-  redirect(redirectPath);
+  
+  return {
+    success: true,
+    redirectPath,
+  };
 }
 
 export async function getAllUsers() {

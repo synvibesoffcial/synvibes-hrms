@@ -14,13 +14,13 @@ import Link from 'next/link'
 import AttendanceEditDialog from './AttendanceEditDialog'
 
 interface AttendanceLogPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
-  searchParams: {
+  }>
+  searchParams: Promise<{
     month?: string
     year?: string
-  }
+  }>
 }
 
 export default async function AttendanceLogPage({ params, searchParams }: AttendanceLogPageProps) {
@@ -33,13 +33,17 @@ export default async function AttendanceLogPage({ params, searchParams }: Attend
     redirect('/sign-in');
   }
 
+  // Await the promises
+  const { id } = await params;
+  const searchParamsResolved = await searchParams;
+
   const currentDate = new Date();
-  const selectedMonth = searchParams.month || (currentDate.getMonth() + 1).toString();
-  const selectedYear = searchParams.year || currentDate.getFullYear().toString();
+  const selectedMonth = searchParamsResolved.month || (currentDate.getMonth() + 1).toString();
+  const selectedYear = searchParamsResolved.year || currentDate.getFullYear().toString();
 
   const [employee, attendance] = await Promise.all([
-    getEmployeeById(params.id),
-    getEmployeeAttendance(params.id, selectedMonth, parseInt(selectedYear))
+    getEmployeeById(id),
+    getEmployeeAttendance(id, selectedMonth, parseInt(selectedYear))
   ]);
 
   if (!employee) {
@@ -93,7 +97,7 @@ export default async function AttendanceLogPage({ params, searchParams }: Attend
       {/* Header */}
       <div className="mb-8 pt-8">
         <div className="flex items-center gap-3 mb-4">
-          <Link href={`/hr/${params.id}`}>
+          <Link href={`/hr/${id}`}>
             <Button variant="outline" size="sm">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Profile
@@ -221,7 +225,7 @@ export default async function AttendanceLogPage({ params, searchParams }: Attend
               Attendance Records - {months.find(m => m.value === selectedMonth)?.label} {selectedYear}
             </CardTitle>
             <AttendanceEditDialog 
-              employeeId={params.id}
+              employeeId={id}
               employeeName={`${employee.firstName} ${employee.lastName}`}
               isNewRecord={true}
             />
@@ -272,7 +276,7 @@ export default async function AttendanceLogPage({ params, searchParams }: Attend
                     </TableCell>
                     <TableCell>
                       <AttendanceEditDialog 
-                        employeeId={params.id}
+                        employeeId={id}
                         employeeName={`${employee.firstName} ${employee.lastName}`}
                         existingRecord={record}
                         isNewRecord={false}

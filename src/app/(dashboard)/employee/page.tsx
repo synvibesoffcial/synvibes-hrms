@@ -3,10 +3,12 @@ import { decrypt } from '@/lib/session';
 import { getUserById, getEmployeeByUserId } from '@/lib/dal';
 import { redirect } from 'next/navigation';
 import EmployeeOnboardingForm from '@/components/ui/EmployeeOnboardingForm';
-import { User } from '@/generated/prisma/index.d';
+import type { User } from '@prisma/client';
+
 
 export default async function EmployeePage() {
   const cookieStore = await cookies();
+  
   const cookie = cookieStore.get('session')?.value;
   const session = await decrypt(cookie);
 

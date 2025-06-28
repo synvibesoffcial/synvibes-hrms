@@ -1,7 +1,7 @@
 "use client"
 import { useTransition, useState } from "react"
 import { updateUserRole } from "@/actions/auth"
-import type { Role } from "@/generated/prisma"
+import type { Role } from "@prisma/client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Shield } from "lucide-react"

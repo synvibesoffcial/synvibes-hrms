@@ -3,13 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { UserCog } from 'lucide-react'
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { getAllEmployees, getHRDashboardStats } from "@/actions/hr"
+import { getAllEmployees } from "@/actions/hr"
 import { Badge } from "@/components/ui/badge"
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
 import { cookies } from 'next/headers'
 import { decrypt } from '@/lib/session'
 import { redirect } from 'next/navigation'
+import { Users } from 'lucide-react'
 
 const employeeManagementPage = async() => {
     const cookieStore = await cookies();
@@ -19,9 +20,8 @@ const employeeManagementPage = async() => {
       if (!session?.userId || session?.role !== 'hr') {
         redirect('/sign-in');
       }
-    const [employees, stats] = await Promise.all([
+    const [employees] = await Promise.all([
         getAllEmployees(),
-        getHRDashboardStats(),
       ]);
   return (
       <div>      {/* Employee List */}

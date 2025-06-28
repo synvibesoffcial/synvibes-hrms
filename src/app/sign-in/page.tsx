@@ -1,22 +1,99 @@
 'use client';
-import { useActionState } from "react";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { signin } from "@/actions/auth";
-import type { FormState } from "@/lib/definitions";
+import { SigninFormSchema } from "@/lib/definitions";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
+type SigninFormData = z.infer<typeof SigninFormSchema>;
 
 export default function SignInPage() {
-  const [signinState, signinAction, signinPending] = useActionState<FormState, FormData>(signin, undefined);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverError, setServerError] = useState<string>("");
+  const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SigninFormData>({
+    resolver: zodResolver(SigninFormSchema),
+  });
+
+  const onSubmit = async (data: SigninFormData) => {
+    setIsSubmitting(true);
+    setServerError("");
+
+    try {
+      const formData = new FormData();
+      formData.append("email", data.email);
+      formData.append("password", data.password);
+
+      const result = await signin(undefined, formData);
+      
+      if (result?.success && result.redirectPath) {
+        // Successful authentication - redirect to appropriate dashboard
+        router.push(result.redirectPath);
+      } else if (result?.message) {
+        setServerError(result.message);
+      }
+    } catch {
+      setServerError("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6">
-      <form className="flex flex-col gap-2 bg-white p-6 rounded shadow w-80 mt-4" action={signinAction}>
-        <h2 className="text-xl font-semibold mb-2">Sign In</h2>
-        <input className="border p-2 rounded" name="email" type="email" placeholder="Email" required />
-        {signinState?.errors?.email && <p className="text-red-600 text-xs">{signinState.errors.email.join(', ')}</p>}
-        <input className="border p-2 rounded" name="password" type="password" placeholder="Password" required />
-        {signinState?.errors?.password && <p className="text-red-600 text-xs">{signinState.errors.password.join(', ')}</p>}
-        {signinState?.message && <p className="text-red-600 text-xs">{signinState.message}</p>}
-        <div className="flex gap-2 mt-2">
-          <button className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition flex-1" type="submit" disabled={signinPending}>Sign In</button>
+      <form 
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-4 bg-white p-6 rounded-lg shadow-md w-80 mt-4"
+      >
+        <h2 className="text-xl font-semibold mb-2 text-center">Sign In</h2>
+        
+        <div className="space-y-2">
+          <Input
+            {...register("email")}
+            type="email"
+            placeholder="Email"
+            className="border-gray-300 focus:border-green-500 focus:ring-green-500"
+            disabled={isSubmitting}
+          />
+          {errors.email && (
+            <p className="text-red-600 text-xs">{errors.email.message}</p>
+          )}
         </div>
+
+        <div className="space-y-2">
+          <Input
+            {...register("password")}
+            type="password"
+            placeholder="Password"
+            className="border-gray-300 focus:border-green-500 focus:ring-green-500"
+            disabled={isSubmitting}
+          />
+          {errors.password && (
+            <p className="text-red-600 text-xs">{errors.password.message}</p>
+          )}
+        </div>
+
+        {serverError && (
+          <p className="text-red-600 text-xs text-center">{serverError}</p>
+        )}
+
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="bg-green-600 hover:bg-green-700 text-white transition mt-4"
+        >
+          {isSubmitting ? "Signing In..." : "Sign In"}
+        </Button>
       </form>
     </div>
   );

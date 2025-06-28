@@ -1,6 +1,6 @@
 import { verifySession } from "@/lib/dal"
 import { redirect } from "next/navigation"
-import type { Role } from "@/generated/prisma"
+import type { Role } from "@prisma/client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Clock, User } from "lucide-react"
 
@@ -15,10 +15,10 @@ export default async function UserPage() {
 
   // Middleware ensures users with roles are redirected, so this page is only for users with no role
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)]">
-      <Card className="w-full max-w-md border-purple-200 shadow-lg">
-        <CardHeader className="text-center bg-gradient-to-r from-purple-50 to-purple-100/50 border-b border-purple-200">
-          <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+    <div className="flex flex-col items-center justify-center">
+      <Card className="w-full max-w-md border-purple-200 shadow-lg mt-8">
+        <CardHeader className="text-center border-b border-purple-200">
+          <div className="w-16 h-6 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Clock className="w-8 h-8 text-purple-600" />
           </div>
           <CardTitle className="text-2xl text-purple-900">Account Pending</CardTitle>

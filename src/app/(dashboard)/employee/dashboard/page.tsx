@@ -59,7 +59,7 @@ export default async function EmployeeDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+        {/* <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -69,7 +69,7 @@ export default async function EmployeeDashboardPage() {
               <Calendar className="w-8 h-8 text-green-600" />
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
           <CardContent className="p-6">
@@ -85,7 +85,7 @@ export default async function EmployeeDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+        {/* <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -95,7 +95,7 @@ export default async function EmployeeDashboardPage() {
               <User className="w-8 h-8 text-purple-600" />
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
 
       {/* Navigation Cards */}

@@ -1,18 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+// import { Badge } from "@/components/ui/badge"
+// import { Button } from "@/components/ui/button"
+// import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+// import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { 
   Users, 
   Clock, 
-  FileText, 
+  // FileText, 
   BarChart3, 
   Calendar, 
   Settings, 
   ExternalLink,
   Building,
-  UserCog 
+  // UserCog 
 } from "lucide-react"
 import { getAllEmployees, getHRDashboardStats } from "@/actions/hr"
 import { cookies } from 'next/headers'
@@ -31,7 +31,7 @@ const HRPage = async () => {
   }
 
   // Fetch dashboard data
-  const [employees, stats] = await Promise.all([
+  const [, stats] = await Promise.all([
     getAllEmployees(),
     getHRDashboardStats(),
   ]);
@@ -118,7 +118,7 @@ const HRPage = async () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="space-y-4">
+            <div className="space-y-4 flex flex-col gap-2">
               <Link href="/hr/department-management">
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
                   <div className="flex items-center gap-3">
@@ -143,7 +143,7 @@ const HRPage = async () => {
                 </div>
               </Link>
 
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
+              {/* <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
                     <Calendar className="w-4 h-4 text-yellow-600" />
@@ -173,13 +173,13 @@ const HRPage = async () => {
                   <span className="font-medium text-gray-900">Payroll Processing</span>
                 </div>
                 <Badge className="bg-blue-100 text-blue-800">Ready</Badge>
-              </div>
+              </div> */}
             </div>
           </CardContent>
         </Card>
 
         {/* Recent Activities */}
-        <Card className="border-purple-200 shadow-lg">
+        {/* <Card className="border-purple-200 shadow-lg">
           <CardHeader className="border-b border-purple-200">
             <CardTitle className="text-xl text-purple-900 flex items-center gap-2">
               <BarChart3 className="w-5 h-5" />
@@ -225,7 +225,7 @@ const HRPage = async () => {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
 
 

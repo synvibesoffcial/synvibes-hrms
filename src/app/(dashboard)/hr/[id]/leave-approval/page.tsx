@@ -13,9 +13,9 @@ import Link from 'next/link'
 import LeaveApprovalDialog from './LeaveApprovalDialog'
 
 interface LeaveApprovalPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function LeaveApprovalPage({ params }: LeaveApprovalPageProps) {
@@ -28,9 +28,12 @@ export default async function LeaveApprovalPage({ params }: LeaveApprovalPagePro
     redirect('/sign-in');
   }
 
+  // Await the params promise
+  const { id } = await params;
+
   const [employee, leaves] = await Promise.all([
-    getEmployeeById(params.id),
-    getEmployeeLeaves(params.id)
+    getEmployeeById(id),
+    getEmployeeLeaves(id)
   ]);
 
   if (!employee) {
@@ -59,7 +62,7 @@ export default async function LeaveApprovalPage({ params }: LeaveApprovalPagePro
       {/* Header */}
       <div className="mb-8 pt-8">
         <div className="flex items-center gap-3 mb-4">
-          <Link href={`/hr/${params.id}`}>
+          <Link href={`/hr/${id}`}>
             <Button variant="outline" size="sm">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Profile

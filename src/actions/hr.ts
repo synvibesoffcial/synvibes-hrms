@@ -65,7 +65,7 @@ async function logSystemAction(action: string, performedBy: string) {
 }
 
 // Department Actions
-export async function createDepartment(prevState: FormState, formData: FormData): Promise<FormState> {
+export async function createDepartment(prevState: FormState, formData: FormData): Promise<FormState & { redirectPath?: string }> {
   const session = await checkHRAuthorization();
   
   const validatedFields = DepartmentSchema.safeParse({
@@ -116,7 +116,7 @@ export async function createDepartment(prevState: FormState, formData: FormData)
   }
 }
 
-export async function updateDepartment(id: string, prevState: FormState, formData: FormData): Promise<FormState> {
+export async function updateDepartment(id: string, prevState: FormState, formData: FormData): Promise<FormState & { redirectPath?: string }> {
   const session = await checkHRAuthorization();
   
   const validatedFields = DepartmentSchema.safeParse({
@@ -199,7 +199,7 @@ export async function deleteDepartment(id: string): Promise<{ success: boolean; 
 }
 
 // Team Actions
-export async function createTeam(prevState: FormState, formData: FormData): Promise<FormState> {
+export async function createTeam(prevState: FormState, formData: FormData): Promise<FormState & { redirectPath?: string }> {
   const session = await checkHRAuthorization();
   
   const validatedFields = TeamSchema.safeParse({
@@ -246,7 +246,7 @@ export async function createTeam(prevState: FormState, formData: FormData): Prom
   }
 }
 
-export async function updateTeam(id: string, prevState: FormState, formData: FormData): Promise<FormState> {
+export async function updateTeam(id: string, prevState: FormState, formData: FormData): Promise<FormState & { redirectPath?: string }> {
   const session = await checkHRAuthorization();
   
   const validatedFields = TeamSchema.safeParse({
@@ -331,7 +331,7 @@ export async function deleteTeam(id: string): Promise<{ success: boolean; messag
 }
 
 // Employee assignment actions
-export async function assignEmployeesToTeam(teamId: string, prevState: FormState, formData: FormData): Promise<FormState> {
+export async function assignEmployeesToTeam(teamId: string, prevState: FormState, formData: FormData): Promise<FormState & { redirectPath?: string }> {
   const session = await checkHRAuthorization();
   
   const employeeIds = formData.getAll('employeeIds') as string[];
@@ -597,7 +597,7 @@ export async function updateAttendance(
   employeeId: string, 
   prevState: AttendanceFormState, 
   formData: FormData
-): Promise<AttendanceFormState> {
+): Promise<AttendanceFormState & { redirectPath?: string }> {
   const session = await checkHRAuthorization();
 
   const validatedFields = AttendanceSchema.safeParse({
@@ -703,7 +703,7 @@ export async function uploadPayslip(
   employeeId: string,
   prevState: FormState,
   formData: FormData
-): Promise<FormState> {
+): Promise<FormState & { redirectPath?: string }> {
   const session = await checkHRAuthorization();
 
   const month = formData.get('month') as string;

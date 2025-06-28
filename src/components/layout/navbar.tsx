@@ -3,7 +3,12 @@
 import { useTransition } from "react"
 import { logout } from "@/actions/auth"
 import { Button } from "../ui/button"
-import { Bell, Search, Settings, LogOut, User } from "lucide-react"
+import {
+  // Bell,
+  // Settings,
+  LogOut,
+  User
+} from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,15 +51,15 @@ export default function Navbar() {
         {/* Right Side Actions */}
         <div className="flex items-center space-x-4">
           {/* Notifications */}
-          <Button variant="ghost" size="icon" className="relative hover:bg-gray-100">
+          {/* <Button variant="ghost" size="icon" className="relative hover:bg-gray-100">
             <Bell className="w-5 h-5 text-gray-600" />
             <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs"></span>
-          </Button>
+          </Button> */}
 
           {/* Settings */}
-          <Button variant="ghost" size="icon" className="hover:bg-gray-100">
+          {/* <Button variant="ghost" size="icon" className="hover:bg-gray-100">
             <Settings className="w-5 h-5 text-gray-600" />
-          </Button>
+          </Button> */}
 
           {/* User Menu */}
           <DropdownMenu>
@@ -69,7 +74,7 @@ export default function Navbar() {
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              {/* <DropdownMenuItem>
                 <User className="mr-2 h-4 w-4" />
                 Profile
               </DropdownMenuItem>
@@ -77,7 +82,7 @@ export default function Navbar() {
                 <Settings className="mr-2 h-4 w-4" />
                 Settings
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
+              <DropdownMenuSeparator /> */}
               <DropdownMenuItem onClick={handleLogout} disabled={isPending} className="text-red-600 focus:text-red-600">
                 <LogOut className="mr-2 h-4 w-4" />
                 {isPending ? "Logging out..." : "Logout"}

@@ -3,11 +3,31 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import { ChevronDown, ChevronRight } from "lucide-react"
-import { Users, Clock, BarChart3, Settings, User, Building, CreditCard, Home } from "lucide-react"
+import { Users, BarChart3, Settings, User, Home } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible"
 
+// Define navigation item types
+import type { ForwardRefExoticComponent, RefAttributes } from "react";
+import type { LucideProps } from "lucide-react";
+
+type NavigationSubItem = {
+  title: string;
+  href: string;
+};
+
+type NavigationItem = {
+  title: string;
+  icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
+  href?: string;
+  items?: NavigationSubItem[];
+};
+
+type RoleBasedNavigation = {
+  [role: string]: NavigationItem[];
+};
+
 // Define role-based navigation structure
-const roleBasedNavigation = {
+const roleBasedNavigation: RoleBasedNavigation = {
   superadmin: [
     {
       title: "Dashboard",
@@ -49,31 +69,31 @@ const roleBasedNavigation = {
       href: "/admin",
       icon: Home,
     },
-    {
-      title: "User Management",
-      icon: Users,
-      items: [
-        { title: "Manage Users", href: "/admin" },
-        { title: "HR Staff", href: "/hr" },
-        { title: "Employees", href: "/employee" },
-      ],
-    },
-    {
-      title: "Reports",
-      icon: BarChart3,
-      items: [
-        { title: "User Reports", href: "/reports/users" },
-        { title: "Activity Reports", href: "/reports/activity" },
-      ],
-    },
-    {
-      title: "Settings",
-      icon: Settings,
-      items: [
-        { title: "Organization", href: "/settings/org" },
-        { title: "Permissions", href: "/settings/permissions" },
-      ],
-    },
+    // {
+    //   title: "User Management",
+    //   icon: Users,
+    //   items: [
+    //     { title: "Manage Users", href: "/admin" },
+    //     { title: "HR Staff", href: "/hr" },
+    //     { title: "Employees", href: "/employee" },
+    //   ],
+    // },
+    // {
+    //   title: "Reports",
+    //   icon: BarChart3,
+    //   items: [
+    //     { title: "User Reports", href: "/reports/users" },
+    //     { title: "Activity Reports", href: "/reports/activity" },
+    //   ],
+    // },
+    // {
+    //   title: "Settings",
+    //   icon: Settings,
+    //   items: [
+    //     { title: "Organization", href: "/settings/org" },
+    //     { title: "Permissions", href: "/settings/permissions" },
+    //   ],
+    // },
   ],
   hr: [
     {

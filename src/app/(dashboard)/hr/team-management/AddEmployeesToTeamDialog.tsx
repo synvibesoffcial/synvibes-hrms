@@ -1,12 +1,14 @@
 'use client'
 
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { useState } from 'react'
-import { useFormState } from 'react-dom'
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { UserPlus, Users } from "lucide-react"
 import { assignEmployeesToTeam } from "@/actions/hr"
+import { AddEmployeesToTeamSchema, type AddEmployeesToTeamFormData } from "../schemas"
 
 type Employee = {
   id: string
@@ -25,50 +27,90 @@ type Team = {
 type AddEmployeesToTeamDialogProps = {
   team: Team
   availableEmployees: Employee[]
+  onSuccess?: () => void
 }
 
 export default function AddEmployeesToTeamDialog({ 
   team, 
-  availableEmployees 
+  availableEmployees,
+  onSuccess
 }: AddEmployeesToTeamDialogProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [serverMessage, setServerMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
 
-  const [state, formAction] = useFormState(assignEmployeesToTeam.bind(null, team.id), {
-    errors: {},
-    message: '',
-    success: false,
+  const {
+    handleSubmit,
+    setValue,
+    formState: { errors },
+    reset,
+  } = useForm<AddEmployeesToTeamFormData>({
+    resolver: zodResolver(AddEmployeesToTeamSchema),
+    defaultValues: {
+      employeeIds: [],
+    },
   })
 
-  const handleSubmit = async (formData: FormData) => {
-    setIsSubmitting(true)
-    // Add selected employees to form data
-    selectedEmployees.forEach(employeeId => {
-      formData.append('employeeIds', employeeId)
-    })
-    await formAction(formData)
-    setIsSubmitting(false)
-    
-    if (state.success) {
-      setSelectedEmployees([])
-      setIsOpen(false)
-    }
-  }
 
-  const toggleEmployee = (employeeId: string) => {
-    setSelectedEmployees(prev => 
-      prev.includes(employeeId) 
-        ? prev.filter(id => id !== employeeId)
-        : [...prev, employeeId]
-    )
-  }
 
   // Filter employees that are not already assigned to any team
   const unassignedEmployees = availableEmployees.filter(emp => !emp.teamId)
 
+  const toggleEmployee = (employeeId: string) => {
+    const newSelection = selectedEmployees.includes(employeeId) 
+      ? selectedEmployees.filter(id => id !== employeeId)
+      : [...selectedEmployees, employeeId]
+    
+    setSelectedEmployees(newSelection)
+    setValue("employeeIds", newSelection)
+  }
+
+  const onSubmit = async (data: AddEmployeesToTeamFormData) => {
+    setIsSubmitting(true)
+    setServerMessage(null)
+
+    try {
+      const formData = new FormData()
+      data.employeeIds.forEach(employeeId => {
+        formData.append('employeeIds', employeeId)
+      })
+
+      const result = await assignEmployeesToTeam(team.id, {}, formData)
+      
+      if (result?.success) {
+        setServerMessage({ text: result.message || 'Employees assigned successfully!', type: 'success' })
+        setSelectedEmployees([])
+        setValue("employeeIds", [])
+        reset()
+        if (onSuccess) onSuccess()
+        // Close dialog after a short delay to show success message
+        setTimeout(() => {
+          setIsOpen(false)
+          setServerMessage(null)
+        }, 1500)
+      } else if (result?.message) {
+        setServerMessage({ text: result.message, type: 'error' })
+      }
+    } catch {
+      setServerMessage({ text: 'An unexpected error occurred. Please try again.', type: 'error' })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleDialogClose = (open: boolean) => {
+    setIsOpen(open)
+    if (!open) {
+      setSelectedEmployees([])
+      setValue("employeeIds", [])
+      setServerMessage(null)
+      reset()
+    }
+  }
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleDialogClose}>
       <DialogTrigger asChild>
         <Button 
           variant="outline" 
@@ -87,23 +129,27 @@ export default function AddEmployeesToTeamDialog({
         </DialogHeader>
         
         <div className="space-y-4">
-          {state.message && (
+          {serverMessage && (
             <div className={`p-3 rounded-lg text-sm ${
-              state.success 
+              serverMessage.type === 'success'
                 ? 'bg-green-50 text-green-800 border border-green-200' 
                 : 'bg-red-50 text-red-800 border border-red-200'
             }`}>
-              {state.message}
+              {serverMessage.text}
             </div>
           )}
 
-          <form action={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="space-y-4">
               <div>
                 <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                   <Users className="w-4 h-4" />
                   Available Employees (Not assigned to any team)
                 </h3>
+                
+                {errors.employeeIds && (
+                  <p className="mb-3 text-sm text-red-600">{errors.employeeIds.message}</p>
+                )}
                 
                 {unassignedEmployees.length > 0 ? (
                   <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -132,6 +178,7 @@ export default function AddEmployeesToTeamDialog({
                               checked={selectedEmployees.includes(employee.id)}
                               onChange={() => toggleEmployee(employee.id)}
                               className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                              disabled={isSubmitting}
                             />
                           </div>
                         </div>
@@ -170,6 +217,7 @@ export default function AddEmployeesToTeamDialog({
                   variant="outline" 
                   type="button"
                   onClick={() => setIsOpen(false)}
+                  disabled={isSubmitting}
                 >
                   Cancel
                 </Button>

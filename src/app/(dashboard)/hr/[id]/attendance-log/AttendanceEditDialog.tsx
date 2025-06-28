@@ -1,12 +1,14 @@
 'use client'
 
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { useState } from 'react'
-import { useFormState } from 'react-dom'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog"
 import { Edit, Plus, Clock } from "lucide-react"
 import { updateAttendance } from "@/actions/hr"
+import { AttendanceSchema, type AttendanceFormData } from "./schemas"
 
 type AttendanceRecord = {
   id: string
@@ -21,33 +23,19 @@ type AttendanceEditDialogProps = {
   employeeName: string
   existingRecord?: AttendanceRecord
   isNewRecord: boolean
+  onSuccess?: () => void
 }
 
 export default function AttendanceEditDialog({ 
   employeeId, 
   employeeName, 
   existingRecord, 
-  isNewRecord 
+  isNewRecord,
+  onSuccess
 }: AttendanceEditDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
-
-  const action = updateAttendance.bind(null, employeeId)
-  const [state, formAction] = useFormState(action, {
-    errors: {},
-    message: '',
-    success: false,
-  })
-
-  const handleSubmit = async (formData: FormData) => {
-    setIsSubmitting(true)
-    await formAction(formData)
-    setIsSubmitting(false)
-    
-    if (state.success) {
-      setIsOpen(false)
-    }
-  }
+  const [serverMessage, setServerMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
 
   // Format date for input (YYYY-MM-DD)
   const formatDateForInput = (date: Date | null) => {
@@ -61,20 +49,66 @@ export default function AttendanceEditDialog({
     return new Date(date).toTimeString().slice(0, 5);
   };
 
-  const defaultDate = existingRecord 
-    ? formatDateForInput(existingRecord.date)
-    : new Date().toISOString().split('T')[0];
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<AttendanceFormData>({
+    resolver: zodResolver(AttendanceSchema),
+    defaultValues: {
+      date: existingRecord 
+        ? formatDateForInput(existingRecord.date)
+        : new Date().toISOString().split('T')[0],
+      checkIn: existingRecord 
+        ? formatTimeForInput(existingRecord.checkIn)
+        : "",
+      checkOut: existingRecord 
+        ? formatTimeForInput(existingRecord.checkOut)
+        : "",
+    },
+  })
 
-  const defaultCheckIn = existingRecord 
-    ? formatTimeForInput(existingRecord.checkIn)
-    : '';
+  const onSubmit = async (data: AttendanceFormData) => {
+    setIsSubmitting(true)
+    setServerMessage(null)
 
-  const defaultCheckOut = existingRecord 
-    ? formatTimeForInput(existingRecord.checkOut)
-    : '';
+    try {
+      const formData = new FormData()
+      formData.append("date", data.date)
+      formData.append("checkIn", data.checkIn || "")
+      formData.append("checkOut", data.checkOut || "")
+
+      const result = await updateAttendance(employeeId, {}, formData)
+      
+      if (result?.success) {
+        setServerMessage({ text: result.message || 'Attendance updated successfully!', type: 'success' })
+        if (onSuccess) onSuccess()
+        // Close dialog after a short delay to show success message
+        setTimeout(() => {
+          setIsOpen(false)
+          setServerMessage(null)
+        }, 1500)
+      } else if (result?.message) {
+        setServerMessage({ text: result.message, type: 'error' })
+      }
+    } catch {
+      setServerMessage({ text: 'An unexpected error occurred. Please try again.', type: 'error' })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleDialogClose = (open: boolean) => {
+    setIsOpen(open)
+    if (!open) {
+      setServerMessage(null)
+      reset()
+    }
+  }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleDialogClose}>
       <DialogTrigger asChild>
         <Button 
           variant="outline" 
@@ -105,31 +139,30 @@ export default function AttendanceEditDialog({
             <p className="text-sm font-medium text-purple-900">Employee: {employeeName}</p>
           </div>
 
-          {state.message && (
+          {serverMessage && (
             <div className={`p-3 rounded-lg text-sm ${
-              state.success 
+              serverMessage.type === 'success'
                 ? 'bg-green-50 text-green-800 border border-green-200' 
                 : 'bg-red-50 text-red-800 border border-red-200'
             }`}>
-              {state.message}
+              {serverMessage.text}
             </div>
           )}
           
-          <form action={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
               <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
                 Date <span className="text-red-500">*</span>
               </label>
               <Input
+                {...register("date")}
                 id="date"
-                name="date"
                 type="date"
-                defaultValue={defaultDate}
                 className="w-full"
-                required
+                disabled={isSubmitting}
               />
-              {state.errors?.date && (
-                <p className="mt-1 text-sm text-red-600">{state.errors.date[0]}</p>
+              {errors.date && (
+                <p className="mt-1 text-sm text-red-600">{errors.date.message}</p>
               )}
             </div>
 
@@ -139,14 +172,14 @@ export default function AttendanceEditDialog({
                   Check In Time
                 </label>
                 <Input
+                  {...register("checkIn")}
                   id="checkIn"
-                  name="checkIn"
                   type="time"
-                  defaultValue={defaultCheckIn}
                   className="w-full"
+                  disabled={isSubmitting}
                 />
-                {state.errors?.checkIn && (
-                  <p className="mt-1 text-sm text-red-600">{state.errors.checkIn[0]}</p>
+                {errors.checkIn && (
+                  <p className="mt-1 text-sm text-red-600">{errors.checkIn.message}</p>
                 )}
               </div>
 
@@ -155,14 +188,14 @@ export default function AttendanceEditDialog({
                   Check Out Time
                 </label>
                 <Input
+                  {...register("checkOut")}
                   id="checkOut"
-                  name="checkOut"
                   type="time"
-                  defaultValue={defaultCheckOut}
                   className="w-full"
+                  disabled={isSubmitting}
                 />
-                {state.errors?.checkOut && (
-                  <p className="mt-1 text-sm text-red-600">{state.errors.checkOut[0]}</p>
+                {errors.checkOut && (
+                  <p className="mt-1 text-sm text-red-600">{errors.checkOut.message}</p>
                 )}
               </div>
             </div>
@@ -176,7 +209,7 @@ export default function AttendanceEditDialog({
 
             <div className="flex justify-end gap-3 pt-4">
               <DialogClose asChild>
-                <Button variant="outline" type="button">
+                <Button variant="outline" type="button" disabled={isSubmitting}>
                   Cancel
                 </Button>
               </DialogClose>

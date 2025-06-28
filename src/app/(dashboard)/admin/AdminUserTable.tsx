@@ -1,10 +1,10 @@
 "use client"
 import { useTransition, useState } from "react"
 import { updateUserRole } from "@/actions/auth"
-import type { Role } from "@/generated/prisma"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Users } from "lucide-react"
+
+type Role = "superadmin" | "admin" | "hr" | "employee"
 
 export interface User {
   id: string
@@ -36,17 +36,7 @@ export default function AdminUserTable({ users }: { users: User[] }) {
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2 mt-8">
-          <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-            <Users className="w-5 h-5 text-purple-600" />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-        </div>
-        <p className="text-gray-600">Manage user roles and permissions for your organization</p>
-      </div>
-
+    <div>
       <Card className="border-purple-200 shadow-lg">
         <CardHeader className="border-purple-200">
           <CardTitle className="text-xl text-purple-900">Manage User Roles</CardTitle>

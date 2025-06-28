@@ -23,9 +23,9 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 
 interface EmployeeProfilePageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function EmployeeProfilePage({ params }: EmployeeProfilePageProps) {
@@ -38,7 +38,10 @@ export default async function EmployeeProfilePage({ params }: EmployeeProfilePag
     redirect('/sign-in');
   }
 
-  const employee = await getEmployeeById(params.id);
+  // Await the params promise
+  const { id } = await params;
+
+  const employee = await getEmployeeById(id);
 
   if (!employee) {
     notFound();
@@ -80,21 +83,21 @@ export default async function EmployeeProfilePage({ params }: EmployeeProfilePag
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <Link href={`/hr/${params.id}/leave-approval`}>
+        <Link href={`/hr/${id}/leave-approval`}>
           <Button className="w-full h-16 bg-green-600 hover:bg-green-700 text-white flex flex-col items-center justify-center">
             <CheckCircle className="w-6 h-6 mb-1" />
             <span>Manage Leaves</span>
           </Button>
         </Link>
         
-        <Link href={`/hr/${params.id}/attendance-log`}>
+        <Link href={`/hr/${id}/attendance-log`}>
           <Button className="w-full h-16 bg-blue-600 hover:bg-blue-700 text-white flex flex-col items-center justify-center">
             <Clock className="w-6 h-6 mb-1" />
             <span>Attendance Log</span>
           </Button>
         </Link>
 
-        <Link href={`/hr/${params.id}/payslip-upload`}>
+        <Link href={`/hr/${id}/payslip-upload`}>
           <Button className="w-full h-16 bg-purple-600 hover:bg-purple-700 text-white flex flex-col items-center justify-center">
             <FileText className="w-6 h-6 mb-1" />
             <span>Upload Payslip</span>

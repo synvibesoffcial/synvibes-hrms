@@ -1,12 +1,14 @@
 'use client'
 
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { useState } from 'react'
-import { useFormState } from 'react-dom'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DialogClose } from "@/components/ui/dialog"
 import { createTeam, updateTeam } from "@/actions/hr"
+import { TeamSchema, type TeamFormData } from "../schemas"
 
 type Department = {
   id: string
@@ -25,57 +27,86 @@ type Team = {
 type TeamFormProps = {
   team?: Team
   departments: Department[]
+  onSuccess?: () => void
 }
 
-export default function TeamForm({ team, departments }: TeamFormProps) {
+export default function TeamForm({ team, departments, onSuccess }: TeamFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [selectedDepartment, setSelectedDepartment] = useState(team?.departmentId || '')
-  
-  const action = team 
-    ? updateTeam.bind(null, team.id)
-    : createTeam
+  const [serverMessage, setServerMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
 
-  const [state, formAction] = useFormState(action, {
-    errors: {},
-    message: '',
-    success: false,
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+    reset,
+  } = useForm<TeamFormData>({
+    resolver: zodResolver(TeamSchema),
+    defaultValues: {
+      name: team?.name || "",
+      description: team?.description || "",
+      departmentId: team?.departmentId || "",
+    },
   })
 
-  const handleSubmit = async (formData: FormData) => {
+  const selectedDepartmentId = watch("departmentId")
+
+  const onSubmit = async (data: TeamFormData) => {
     setIsSubmitting(true)
-    formData.set('departmentId', selectedDepartment)
-    await formAction(formData)
-    setIsSubmitting(false)
+    setServerMessage(null)
+
+    try {
+      const formData = new FormData()
+      formData.append("name", data.name)
+      formData.append("description", data.description || "")
+      formData.append("departmentId", data.departmentId)
+
+      const result = team
+        ? await updateTeam(team.id, {}, formData)
+        : await createTeam({}, formData)
+      
+      if (result?.success) {
+        setServerMessage({ text: result.message || 'Team saved successfully!', type: 'success' })
+        if (!team) reset() // Clear form only for new team
+        if (onSuccess) onSuccess()
+      } else if (result?.message) {
+        setServerMessage({ text: result.message, type: 'error' })
+      }
+    } catch {
+      setServerMessage({ text: 'An unexpected error occurred. Please try again.', type: 'error' })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
     <div className="space-y-4">
-      {state.message && (
+      {serverMessage && (
         <div className={`p-3 rounded-lg text-sm ${
-          state.success 
+          serverMessage.type === 'success'
             ? 'bg-green-50 text-green-800 border border-green-200' 
             : 'bg-red-50 text-red-800 border border-red-200'
         }`}>
-          {state.message}
+          {serverMessage.text}
         </div>
       )}
       
-      <form action={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
             Team Name <span className="text-red-500">*</span>
           </label>
           <Input
+            {...register("name")}
             id="name"
-            name="name"
             type="text"
             placeholder="Enter team name"
-            defaultValue={team?.name || ''}
             className="w-full"
-            required
+            disabled={isSubmitting}
           />
-          {state.errors?.name && (
-            <p className="mt-1 text-sm text-red-600">{state.errors.name[0]}</p>
+          {errors.name && (
+            <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
           )}
         </div>
 
@@ -83,7 +114,11 @@ export default function TeamForm({ team, departments }: TeamFormProps) {
           <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-1">
             Department <span className="text-red-500">*</span>
           </label>
-          <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+          <Select 
+            value={selectedDepartmentId} 
+            onValueChange={(value) => setValue("departmentId", value)}
+            disabled={isSubmitting}
+          >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select a department" />
             </SelectTrigger>
@@ -95,10 +130,10 @@ export default function TeamForm({ team, departments }: TeamFormProps) {
               ))}
             </SelectContent>
           </Select>
-          {state.errors?.departmentId && (
-            <p className="mt-1 text-sm text-red-600">{state.errors.departmentId[0]}</p>
+          {errors.departmentId && (
+            <p className="mt-1 text-sm text-red-600">{errors.departmentId.message}</p>
           )}
-          {!selectedDepartment && departments.length === 0 && (
+          {departments.length === 0 && (
             <p className="mt-1 text-sm text-yellow-600">
               No departments available. Please create a department first.
             </p>
@@ -110,15 +145,15 @@ export default function TeamForm({ team, departments }: TeamFormProps) {
             Description
           </label>
           <Input
+            {...register("description")}
             id="description"
-            name="description"
             type="text"
             placeholder="Enter team description (optional)"
-            defaultValue={team?.description || ''}
             className="w-full"
+            disabled={isSubmitting}
           />
-          {state.errors?.description && (
-            <p className="mt-1 text-sm text-red-600">{state.errors.description[0]}</p>
+          {errors.description && (
+            <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
           )}
         </div>
 
@@ -131,7 +166,7 @@ export default function TeamForm({ team, departments }: TeamFormProps) {
           <Button 
             type="submit" 
             className="bg-purple-600 hover:bg-purple-700 text-white"
-            disabled={isSubmitting || !selectedDepartment || departments.length === 0}
+            disabled={isSubmitting || !selectedDepartmentId || departments.length === 0}
           >
             {isSubmitting 
               ? (team ? 'Updating...' : 'Creating...') 
