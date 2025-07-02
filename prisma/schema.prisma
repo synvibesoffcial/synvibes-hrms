@@ -8,14 +8,19 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  password     String
-  firstName    String
-  lastName     String
-  role         Role?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                   String   @id @default(cuid())
+  email                String   @unique
+  password             String
+  firstName            String
+  lastName             String
+  role                 Role?
+  emailVerified        Boolean  @default(false)
+  emailVerificationToken String? @unique
+  emailVerificationExpires DateTime?
+  passwordResetToken   String?  @unique
+  passwordResetExpires DateTime?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
   employee              Employee?
   sentInvitations       UserInvitation[]

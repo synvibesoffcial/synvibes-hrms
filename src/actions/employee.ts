@@ -11,6 +11,7 @@ import type { EmployeeOnboardingData } from "@/types/employee";
 // Employee validation schema - moved inline since we can't export non-async values
 const EmployeeSchema = z.object({
   empId: z.string().min(1, 'Employee ID is required'),
+  designation: z.string().min(1, 'Designation is required'),
   joinDate: z.string().min(1, 'Join date is required'),
   dateOfBirth: z.string().min(1, 'Date of birth is required'),
   gender: z.string().min(1, 'Gender is required'),
@@ -49,6 +50,7 @@ const EmployeeSchema = z.object({
 type FormState = {
   errors?: {
     empId?: string[];
+    designation?: string[];
     joinDate?: string[];
     dateOfBirth?: string[];
     gender?: string[];
@@ -60,8 +62,6 @@ type FormState = {
   redirectPath?: string;
 };
 
-
-
 export async function createEmployee(user: User, prevState: FormState, formData: FormData): Promise<FormState> {
   const validatedFields = EmployeeSchema.safeParse(Object.fromEntries(formData.entries()));
 
@@ -72,7 +72,7 @@ export async function createEmployee(user: User, prevState: FormState, formData:
     };
   }
   
-  const { empId, joinDate, dateOfBirth, gender, address, contactInfo } = validatedFields.data;
+  const { empId, designation, joinDate, dateOfBirth, gender, address, contactInfo } = validatedFields.data;
 
   try {
     // Check if empId already exists
@@ -92,6 +92,7 @@ export async function createEmployee(user: User, prevState: FormState, formData:
         firstName: user.firstName,
         lastName: user.lastName,
         empId,
+        designation,
         joinDate: new Date(joinDate),
         dateOfBirth: new Date(dateOfBirth),
         gender,

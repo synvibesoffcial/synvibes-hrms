@@ -89,6 +89,7 @@ export default function EmployeeOnboardingForm({ user }: { user: User }) {
     try {
       const formData = new FormData()
       formData.append("empId", data.empId)
+      formData.append("designation", data.designation)
       formData.append("joinDate", data.joinDate)
       formData.append("dateOfBirth", data.dateOfBirth)
       formData.append("gender", data.gender)

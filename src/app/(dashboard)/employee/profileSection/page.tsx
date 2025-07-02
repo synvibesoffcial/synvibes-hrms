@@ -63,6 +63,12 @@ export default async function ProfileSectionPage() {
                 <label className="text-sm font-medium text-gray-600">Employee ID</label>
                 <p className="text-gray-900 font-medium mt-1">{employee.empId}</p>
               </div>
+              {employee.designation && (
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <label className="text-sm font-medium text-gray-600">Designation</label>
+                  <p className="text-gray-900 mt-1">{employee.designation}</p>
+                </div>
+              )}
               <div className="bg-gray-50 p-4 rounded-lg">
                 <label className="text-sm font-medium text-gray-600">First Name</label>
                 <p className="text-gray-900 mt-1">{employee.firstName}</p>

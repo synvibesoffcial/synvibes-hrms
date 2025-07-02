@@ -2,7 +2,10 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { decrypt } from '@/lib/session';
 
 // Define public routes (accessible without authentication)
-const publicRoutes = ['/sign-in', '/sign-up', '/', '/accept-invitation', '/onboarding'];
+const publicRoutes = ['/sign-in', '/sign-up', '/', '/accept-invitation', '/onboarding', '/verify-email', '/verify-email-sent', '/forgot-password', '/reset-password'];
+
+// Define routes that require email verification
+const emailVerificationRoutes = ['/verify-email', '/verify-email-sent'];
 
 // Define protected routes with role-based access
 const protectedRoutes = ['/admin', '/employee', '/hr', '/superadmin'];
@@ -18,14 +21,27 @@ const roleBasedRedirects: Record<string, string> = {
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isPublicRoute = publicRoutes.includes(path) || path.startsWith('/accept-invitation') || path.startsWith('/onboarding');
+  const isEmailVerificationRoute = emailVerificationRoutes.includes(path) || path.startsWith('/verify-email');
   const isProtectedRoute = protectedRoutes.some(route => path.startsWith(route));
   const sessionCookie = request.cookies.get('session')?.value;
 
+  // Handle email verification routes
+  if (isEmailVerificationRoute) {
+    // Allow access to email verification routes regardless of session status
+    return NextResponse.next();
+  }
+
   // Redirect authenticated users from public routes to their role-specific page or /user
-  if (sessionCookie && isPublicRoute) {
+  if (sessionCookie && isPublicRoute && !isEmailVerificationRoute) {
     try {
       const session = await decrypt(sessionCookie);
       if (session?.userId) {
+        // Check if email is verified
+        if (session?.emailVerified === false) {
+          // Redirect unverified users to verification sent page
+          return NextResponse.redirect(new URL('/verify-email-sent', request.url));
+        }
+
         const userRole = session?.role as keyof typeof roleBasedRedirects;
         // If user has a role, redirect to their role-specific page
         if (userRole && roleBasedRedirects[userRole]) {
@@ -49,6 +65,12 @@ export async function middleware(request: NextRequest) {
   if (sessionCookie && !isPublicRoute) {
     try {
       const session = await decrypt(sessionCookie);
+      
+      // Check email verification for all authenticated routes
+      if (session?.emailVerified === false) {
+        return NextResponse.redirect(new URL('/verify-email-sent', request.url));
+      }
+
       const userRole = session?.role as keyof typeof roleBasedRedirects;
 
       // Allow access to /user for authenticated users with no role

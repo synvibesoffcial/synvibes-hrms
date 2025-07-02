@@ -3,7 +3,10 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import { ChevronDown, ChevronRight } from "lucide-react"
-import { Users, BarChart3, Settings, User, Home } from "lucide-react"
+import { Users,
+  //  BarChart3,
+  //   Settings,
+     User, Home } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible"
 
 // Define navigation item types
@@ -34,34 +37,34 @@ const roleBasedNavigation: RoleBasedNavigation = {
       href: "/superadmin",
       icon: Home,
     },
-    {
-      title: "User Management",
-      icon: Users,
-      items: [
-        { title: "All Users", href: "/superadmin" },
-        { title: "Admin Users", href: "/admin" },
-        { title: "HR Users", href: "/hr" },
-        { title: "Employees", href: "/employee" },
-      ],
-    },
-    {
-      title: "System Settings",
-      icon: Settings,
-      items: [
-        { title: "General Settings", href: "/settings/general" },
-        { title: "Security", href: "/settings/security" },
-        { title: "Integrations", href: "/settings/integrations" },
-      ],
-    },
-    {
-      title: "Reports",
-      icon: BarChart3,
-      items: [
-        { title: "System Reports", href: "/reports/system" },
-        { title: "User Analytics", href: "/reports/users" },
-        { title: "Activity Logs", href: "/reports/activity" },
-      ],
-    },
+    // {
+    //   title: "User Management",
+    //   icon: Users,
+    //   items: [
+    //     { title: "All Users", href: "/superadmin" },
+    //     { title: "Admin Users", href: "/admin" },
+    //     { title: "HR Users", href: "/hr" },
+    //     { title: "Employees", href: "/employee" },
+    //   ],
+    // },
+    // {
+    //   title: "System Settings",
+    //   icon: Settings,
+    //   items: [
+    //     { title: "General Settings", href: "/settings/general" },
+    //     { title: "Security", href: "/settings/security" },
+    //     { title: "Integrations", href: "/settings/integrations" },
+    //   ],
+    // },
+    // {
+    //   title: "Reports",
+    //   icon: BarChart3,
+    //   items: [
+    //     { title: "System Reports", href: "/reports/system" },
+    //     { title: "User Analytics", href: "/reports/users" },
+    //     { title: "Activity Logs", href: "/reports/activity" },
+    //   ],
+    // },
   ],
   admin: [
     {
