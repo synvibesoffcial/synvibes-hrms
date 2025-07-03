@@ -19,7 +19,7 @@ jobs:
       SMTP_FROM: ${{ secrets.SMTP_FROM }}
       NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
       TAG: ${{ github.sha }}
-      PORT: 3003
+      PORT: 3001
     steps:
       - uses: actions/checkout@v4
 
