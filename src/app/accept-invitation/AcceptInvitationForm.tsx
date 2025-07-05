@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Mail, User, AlertCircle, Loader2, CheckCircle } from "lucide-react";
+import { Mail, User, AlertCircle, Loader2, CheckCircle, Eye, EyeOff } from "lucide-react";
 
 interface InvitationData {
   id: string;
@@ -28,6 +28,8 @@ export default function AcceptInvitationForm() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
   const form = useForm<AcceptInvitationFormData>({
     resolver: zodResolver(AcceptInvitationFormSchema),
@@ -230,16 +232,32 @@ export default function AcceptInvitationForm() {
             <label htmlFor="password" className="text-sm font-medium text-gray-700">
               Password <span className="text-red-500">*</span>
             </label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Create a password"
-              {...form.register("password")}
-              className={`border-blue-200 focus:border-blue-500 focus:ring-blue-500 ${
-                errors.password ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""
-              }`}
-              disabled={isSubmitting}
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Create a password"
+                {...form.register("password")}
+                className={`border-blue-200 focus:border-blue-500 focus:ring-blue-500 pr-10 ${
+                  errors.password ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""
+                }`}
+                disabled={isSubmitting}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                onClick={() => setShowPassword(!showPassword)}
+                disabled={isSubmitting}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4 text-gray-400" />
+                ) : (
+                  <Eye className="h-4 w-4 text-gray-400" />
+                )}
+              </Button>
+            </div>
             {errors.password && (
               <p className="text-xs text-red-600 mt-1">{errors.password.message}</p>
             )}
@@ -268,16 +286,32 @@ export default function AcceptInvitationForm() {
             <label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
               Confirm Password <span className="text-red-500">*</span>
             </label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              placeholder="Confirm your password"
-              {...form.register("confirmPassword")}
-              className={`border-blue-200 focus:border-blue-500 focus:ring-blue-500 ${
-                errors.confirmPassword ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""
-              }`}
-              disabled={isSubmitting}
-            />
+            <div className="relative">
+              <Input
+                id="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Confirm your password"
+                {...form.register("confirmPassword")}
+                className={`border-blue-200 focus:border-blue-500 focus:ring-blue-500 pr-10 ${
+                  errors.confirmPassword ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""
+                }`}
+                disabled={isSubmitting}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                disabled={isSubmitting}
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="h-4 w-4 text-gray-400" />
+                ) : (
+                  <Eye className="h-4 w-4 text-gray-400" />
+                )}
+              </Button>
+            </div>
             {errors.confirmPassword && (
               <p className="text-xs text-red-600 mt-1">{errors.confirmPassword.message}</p>
             )}

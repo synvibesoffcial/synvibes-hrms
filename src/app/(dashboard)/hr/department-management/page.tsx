@@ -3,7 +3,11 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Building, Users, Plus, Edit, Settings } from "lucide-react"
+import { Building, Users, Plus, Edit, Settings,
+  // Link,
+  // ArrowLeft
+ }
+  from "lucide-react"
 import { getAllDepartments } from "@/actions/hr"
 import { cookies } from 'next/headers'
 import { decrypt } from '@/lib/session'
@@ -27,6 +31,15 @@ export default async function DepartmentManagementPage() {
 
   return (
     <div className="max-w-7xl mx-auto">
+      {/* <div className="flex items-center gap-3 mt-8">
+        <Link href="/hr/">
+          <Button variant="outline" size="sm">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
+        </Link>
+      </div> */}
+
       <div className="mb-8 pt-8">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
