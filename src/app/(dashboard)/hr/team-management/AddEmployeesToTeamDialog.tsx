@@ -15,7 +15,15 @@ type Employee = {
   firstName: string
   lastName: string
   empId: string
-  teamId: string | null
+  teams: Array<{
+    team: {
+      id: string
+      name: string
+      department: {
+        name: string
+      }
+    }
+  }>
 }
 
 type Team = {
@@ -52,10 +60,10 @@ export default function AddEmployeesToTeamDialog({
     },
   })
 
-
-
-  // Filter employees that are not already assigned to any team
-  const unassignedEmployees = availableEmployees.filter(emp => !emp.teamId)
+  // Filter employees that are not already assigned to this specific team
+  const availableForThisTeam = availableEmployees.filter(emp => 
+    !emp.teams.some(teamAssignment => teamAssignment.team.id === team.id)
+  )
 
   const toggleEmployee = (employeeId: string) => {
     const newSelection = selectedEmployees.includes(employeeId) 
@@ -144,16 +152,16 @@ export default function AddEmployeesToTeamDialog({
               <div>
                 <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                   <Users className="w-4 h-4" />
-                  Available Employees (Not assigned to any team)
+                  Available Employees (Not in this team)
                 </h3>
                 
                 {errors.employeeIds && (
                   <p className="mb-3 text-sm text-red-600">{errors.employeeIds.message}</p>
                 )}
                 
-                {unassignedEmployees.length > 0 ? (
+                {availableForThisTeam.length > 0 ? (
                   <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {unassignedEmployees.map((employee) => (
+                    {availableForThisTeam.map((employee) => (
                       <div 
                         key={employee.id}
                         className={`p-3 border rounded-lg cursor-pointer transition-colors ${
@@ -171,6 +179,11 @@ export default function AddEmployeesToTeamDialog({
                             <p className="text-sm text-gray-600">
                               Employee ID: {employee.empId}
                             </p>
+                            {employee.teams.length > 0 && (
+                              <p className="text-xs text-gray-500 mt-1">
+                                Current teams: {employee.teams.map(t => t.team.name).join(', ')}
+                              </p>
+                            )}
                           </div>
                           <div className="flex items-center">
                             <input
@@ -189,7 +202,7 @@ export default function AddEmployeesToTeamDialog({
                   <div className="text-center py-8 text-gray-500">
                     <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                     <p>No available employees to assign.</p>
-                    <p className="text-sm">All employees are already assigned to teams.</p>
+                    <p className="text-sm">All employees are already in this team.</p>
                   </div>
                 )}
               </div>
@@ -201,7 +214,7 @@ export default function AddEmployeesToTeamDialog({
                   </p>
                   <div className="flex flex-wrap gap-1">
                     {selectedEmployees.map(employeeId => {
-                      const employee = unassignedEmployees.find(emp => emp.id === employeeId)
+                      const employee = availableForThisTeam.find(emp => emp.id === employeeId)
                       return employee ? (
                         <Badge key={employeeId} className="bg-purple-100 text-purple-800">
                           {employee.firstName} {employee.lastName}

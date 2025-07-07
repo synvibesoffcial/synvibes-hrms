@@ -17,6 +17,7 @@ export default function TestPage() {
   const [attendanceData, setAttendanceData] = useState<Attendance[]>([]);
   const [usersData, setUsersData] = useState<User[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [errorDetails, setErrorDetails] = useState<{ details?: string; code?: string } | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,11 +28,20 @@ export default function TestPage() {
         if (response.ok) {
           setAttendanceData(result.attendance);
           setUsersData(result.users);
+          setError(null);
+          setErrorDetails(null);
         } else {
+          console.error('API Error Response:', result);
           setError(result.error || 'Failed to fetch data');
+          setErrorDetails(result);
         }
-      } catch {
+      } catch (fetchError) {
+        console.error('Fetch Error:', fetchError);
         setError('Error connecting to the server');
+        setErrorDetails({ 
+          details: fetchError instanceof Error ? fetchError.message : 'Network error',
+          code: 'NETWORK_ERROR'
+        });
       }
     };
 
@@ -42,7 +52,21 @@ export default function TestPage() {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Database Test Page</h1>
       
-      {error && <p className="text-red-500">{error}</p>}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+          <p className="text-red-700 font-semibold">{error}</p>
+          {errorDetails && (
+            <div className="mt-2 text-sm text-red-600">
+              {errorDetails.details && (
+                <p><strong>Details:</strong> {errorDetails.details}</p>
+              )}
+              {errorDetails.code && (
+                <p><strong>Error Code:</strong> {errorDetails.code}</p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       <h2 className="text-xl font-semibold mt-4">Attendance Records</h2>
       <table className="w-full border-collapse border mt-2">

@@ -293,8 +293,8 @@ export async function deleteTeam(id: string): Promise<{ success: boolean; messag
   const session = await checkHRAuthorization();
 
   try {
-    // Check if team has employees
-    const employeesCount = await prisma.employee.count({
+    // Check if team has employees using the junction table
+    const employeesCount = await (prisma as any).employeeTeam.count({
       where: { teamId: id },
     });
 
@@ -354,23 +354,38 @@ export async function assignEmployeesToTeam(teamId: string, prevState: FormState
       };
     }
 
-    // Update employees to assign them to the team
-    await prisma.employee.updateMany({
+    // Create EmployeeTeam relationships for employees not already in this team
+    const existingAssignments = await (prisma as any).employeeTeam.findMany({
       where: {
-        id: { in: employeeIds },
-        teamId: null, // Only update employees not already assigned to a team
-      },
-      data: {
         teamId: teamId,
+        employeeId: { in: employeeIds },
       },
+      select: { employeeId: true },
     });
 
-    await logSystemAction(`Assigned ${employeeIds.length} employees to team: ${team.name}`, session.userId);
+    const existingEmployeeIds = existingAssignments.map((ea: any) => ea.employeeId);
+    const newEmployeeIds = employeeIds.filter(id => !existingEmployeeIds.includes(id));
+
+    if (newEmployeeIds.length === 0) {
+      return {
+        message: 'All selected employees are already assigned to this team.',
+      };
+    }
+
+    // Create new team assignments
+    await (prisma as any).employeeTeam.createMany({
+      data: newEmployeeIds.map(employeeId => ({
+        employeeId,
+        teamId,
+      })),
+    });
+
+    await logSystemAction(`Assigned ${newEmployeeIds.length} employees to team: ${team.name}`, session.userId);
     
     revalidatePath('/hr/team-management');
     return {
       success: true,
-      message: `Successfully assigned ${employeeIds.length} employee(s) to ${team.name}.`,
+      message: `Successfully assigned ${newEmployeeIds.length} employee(s) to ${team.name}.`,
     };
   } catch (error) {
     console.error('Employee assignment error:', error);
@@ -380,29 +395,45 @@ export async function assignEmployeesToTeam(teamId: string, prevState: FormState
   }
 }
 
-export async function removeEmployeeFromTeam(employeeId: string): Promise<{ success: boolean; message: string }> {
+export async function removeEmployeeFromTeam(employeeId: string, teamId: string): Promise<{ success: boolean; message: string }> {
   const session = await checkHRAuthorization();
 
   try {
-    const employee = await prisma.employee.findUnique({
-      where: { id: employeeId },
-      select: { firstName: true, lastName: true, team: { select: { name: true } } },
+    const employeeTeam = await (prisma as any).employeeTeam.findUnique({
+      where: {
+        employeeId_teamId: {
+          employeeId,
+          teamId,
+        },
+      },
+      include: {
+        employee: {
+          select: { firstName: true, lastName: true },
+        },
+        team: {
+          select: { name: true },
+        },
+      },
     });
 
-    if (!employee) {
+    if (!employeeTeam) {
       return {
         success: false,
-        message: 'Employee not found.',
+        message: 'Employee is not assigned to this team.',
       };
     }
 
-    await prisma.employee.update({
-      where: { id: employeeId },
-      data: { teamId: null },
+    await (prisma as any).employeeTeam.delete({
+      where: {
+        employeeId_teamId: {
+          employeeId,
+          teamId,
+        },
+      },
     });
 
     await logSystemAction(
-      `Removed ${employee.firstName} ${employee.lastName} from team: ${employee.team?.name || 'Unknown'}`, 
+      `Removed ${employeeTeam.employee.firstName} ${employeeTeam.employee.lastName} from team: ${employeeTeam.team.name}`, 
       session.userId
     );
     
@@ -424,11 +455,23 @@ export async function removeEmployeeFromTeam(employeeId: string): Promise<{ succ
 export async function getAllDepartments() {
   await checkHRAuthorization();
   
-  return await prisma.department.findMany({
+  // Using type assertion until Prisma client is regenerated
+  return await (prisma as any).department.findMany({
     include: {
       teams: {
         include: {
-          employees: true,
+          employees: {
+            include: {
+              employee: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  empId: true,
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -441,10 +484,22 @@ export async function getAllDepartments() {
 export async function getAllTeams() {
   await checkHRAuthorization();
   
-  return await prisma.team.findMany({
+  // Using type assertion until Prisma client is regenerated
+  return await (prisma as any).team.findMany({
     include: {
       department: true,
-      employees: true,
+      employees: {
+        include: {
+          employee: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              empId: true,
+            },
+          },
+        },
+      },
     },
     orderBy: {
       name: 'asc',
@@ -455,24 +510,28 @@ export async function getAllTeams() {
 export async function getAllEmployees() {
   await checkHRAuthorization();
   
-  return await prisma.employee.findMany({
+  // Using type assertion until Prisma client is regenerated
+  return await (prisma as any).employee.findMany({
     select: {
       id: true,
       firstName: true,
       lastName: true,
       empId: true,
-      teamId: true,
       user: {
         select: {
           email: true,
         },
       },
-      team: {
-        select: {
-          name: true,
-          department: {
+      teams: {
+        include: {
+          team: {
             select: {
               name: true,
+              department: {
+                select: {
+                  name: true,
+                },
+              },
             },
           },
         },

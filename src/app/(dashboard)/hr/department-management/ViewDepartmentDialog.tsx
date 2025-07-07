@@ -18,7 +18,9 @@ type Team = {
   id: string
   name: string
   description: string | null
-  employees: Employee[]
+  employees: Array<{
+    employee: Employee
+  }>
 }
 
 type Department = {
@@ -111,9 +113,9 @@ export default function ViewDepartmentDialog({ department }: ViewDepartmentDialo
                         <div className="mt-3 pt-3 border-t border-gray-100">
                           <p className="text-xs font-medium text-gray-600 mb-2">Team Members:</p>
                           <div className="flex flex-wrap gap-1">
-                            {team.employees.map((employee) => (
-                              <Badge key={employee.id} variant="outline" className="text-xs">
-                                {employee.firstName} {employee.lastName} ({employee.empId})
+                            {team.employees.map((employeeAssignment) => (
+                              <Badge key={employeeAssignment.employee.id} variant="outline" className="text-xs">
+                                {employeeAssignment.employee.firstName} {employeeAssignment.employee.lastName} ({employeeAssignment.employee.empId})
                               </Badge>
                             ))}
                           </div>

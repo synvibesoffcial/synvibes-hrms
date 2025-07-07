@@ -34,6 +34,7 @@ async function main() {
   }
 
   // Create Users and Employees
+  const employees = [];
   for (let i = 0; i < 10; i++) {
     const firstName = faker.person.firstName();
     const lastName = faker.person.lastName();
@@ -51,7 +52,7 @@ async function main() {
     });
 
     // Create Employee
-    await prisma.employee.create({
+    const employee = await prisma.employee.create({
       data: {
         userId: user.id,
         empId: `EMP${1000 + i}`,
@@ -62,9 +63,36 @@ async function main() {
         gender: faker.person.sexType(),
         address: faker.location.streetAddress(),
         contactInfo: faker.phone.number(),
-        teamId: teams[Math.floor(Math.random() * teams.length)].id,
       },
     });
+
+    employees.push(employee);
+  }
+
+  // Create EmployeeTeam relationships
+  for (const employee of employees) {
+    // Each employee joins at least one team
+    const primaryTeam = teams[Math.floor(Math.random() * teams.length)];
+    await (prisma as any).employeeTeam.create({
+      data: {
+        employeeId: employee.id,
+        teamId: primaryTeam.id,
+      },
+    });
+
+    // Some employees (30%) join a second team
+    if (Math.random() < 0.3) {
+      const availableTeams = teams.filter(team => team.id !== primaryTeam.id);
+      if (availableTeams.length > 0) {
+        const secondaryTeam = availableTeams[Math.floor(Math.random() * availableTeams.length)];
+        await (prisma as any).employeeTeam.create({
+          data: {
+            employeeId: employee.id,
+            teamId: secondaryTeam.id,
+          },
+        });
+      }
+    }
   }
 
   console.log('Seeding completed.');

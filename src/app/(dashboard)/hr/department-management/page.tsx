@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Building, Users, Plus, Edit, Settings,
-  // Link,
-  // ArrowLeft
+  ArrowLeft
  }
   from "lucide-react"
 import { getAllDepartments } from "@/actions/hr"
@@ -15,6 +14,7 @@ import { redirect } from 'next/navigation'
 import DepartmentForm from './DepartmentForm'
 import DeleteDepartmentButton from './DeleteDepartmentButton'
 import ViewDepartmentDialog from './ViewDepartmentDialog'
+import Link from "next/link"
 
 
 export default async function DepartmentManagementPage() {
@@ -31,16 +31,16 @@ export default async function DepartmentManagementPage() {
 
   return (
     <div className="max-w-7xl mx-auto">
-      {/* <div className="flex items-center gap-3 mt-8">
-        <Link href="/hr/">
-          <Button variant="outline" size="sm">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Dashboard
-          </Button>
-        </Link>
-      </div> */}
-
+      {/* Header */}
       <div className="mb-8 pt-8">
+      <div className="flex items-center gap-3 mb-4">
+          <Link href="/hr">
+            <Button variant="outline" size="sm">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard 
+            </Button>
+          </Link>
+        </div>
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
             <Building className="w-5 h-5 text-purple-600" />

@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Users, Plus, Edit, Settings, Building } from "lucide-react"
+import { Users, Plus, Edit, Settings, Building, ArrowLeft } from "lucide-react"
 import { getAllTeams, getAllDepartments, getAllEmployees } from "@/actions/hr"
 import { cookies } from 'next/headers'
 import { decrypt } from '@/lib/session'
@@ -12,6 +12,7 @@ import TeamForm from './TeamForm'
 import DeleteTeamButton from './DeleteTeamButton'
 import AddEmployeesToTeamDialog from './AddEmployeesToTeamDialog'
 import ViewTeamDialog from './ViewTeamDialog'
+import Link from "next/link"
 
 export default async function TeamManagementPage() {
   // Check HR authorization
@@ -32,6 +33,14 @@ export default async function TeamManagementPage() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-8 pt-8">
+      <div className="flex items-center gap-3 mb-4">
+          <Link href="/hr">
+            <Button variant="outline" size="sm">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard 
+            </Button>
+          </Link>
+        </div>
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
             <Users className="w-5 h-5 text-purple-600" />

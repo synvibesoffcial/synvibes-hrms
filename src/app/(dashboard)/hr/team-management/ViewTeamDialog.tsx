@@ -25,7 +25,9 @@ type Team = {
   name: string
   description: string | null
   department: Department
-  employees: Employee[]
+  employees: Array<{
+    employee: Employee
+  }>
 }
 
 type ViewTeamDialogProps = {
@@ -39,7 +41,7 @@ export default function ViewTeamDialog({ team }: ViewTeamDialogProps) {
   const handleRemoveEmployee = async (employeeId: string) => {
     setRemovingEmployeeId(employeeId)
     try {
-      const result = await removeEmployeeFromTeam(employeeId)
+      const result = await removeEmployeeFromTeam(employeeId, team.id)
       if (result.success) {
         // The page will revalidate automatically
       }
@@ -105,27 +107,27 @@ export default function ViewTeamDialog({ team }: ViewTeamDialogProps) {
             
             {team.employees.length > 0 ? (
               <div className="space-y-3">
-                {team.employees.map((employee) => (
-                  <Card key={employee.id} className="border-gray-200">
+                {team.employees.map((employeeAssignment) => (
+                  <Card key={employeeAssignment.employee.id} className="border-gray-200">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <h4 className="font-medium text-gray-900">
-                            {employee.firstName} {employee.lastName}
+                            {employeeAssignment.employee.firstName} {employeeAssignment.employee.lastName}
                           </h4>
                           <p className="text-sm text-gray-600">
-                            Employee ID: {employee.empId}
+                            Employee ID: {employeeAssignment.employee.empId}
                           </p>
                         </div>
                         <Button
                           variant="outline"
                           size="sm"
                           className="text-red-600 border-red-200 hover:bg-red-50"
-                          onClick={() => handleRemoveEmployee(employee.id)}
-                          disabled={removingEmployeeId === employee.id}
+                          onClick={() => handleRemoveEmployee(employeeAssignment.employee.id)}
+                          disabled={removingEmployeeId === employeeAssignment.employee.id}
                           title="Remove employee from team"
                         >
-                          {removingEmployeeId === employee.id ? (
+                          {removingEmployeeId === employeeAssignment.employee.id ? (
                             <div className="w-4 h-4 animate-spin rounded-full border-2 border-red-600 border-t-transparent" />
                           ) : (
                             <X className="w-4 h-4" />

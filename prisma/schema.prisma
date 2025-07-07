@@ -41,8 +41,7 @@ model Employee {
   address      String?
   contactInfo  String?
 
-  teamId       String?
-  team         Team?     @relation(fields: [teamId], references: [id])
+  teams        EmployeeTeam[]
 
   leaves       LeaveRequest[]
   attendance   Attendance[]
@@ -64,7 +63,18 @@ model Team {
   departmentId  String
   department    Department  @relation(fields: [departmentId], references: [id])
 
-  employees     Employee[]
+  employees     EmployeeTeam[]
+}
+
+model EmployeeTeam {
+  id          String    @id @default(cuid())
+  employeeId  String
+  teamId      String
+  employee    Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  team        Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  joinedAt    DateTime  @default(now())
+
+  @@unique([employeeId, teamId])
 }
 
 model LeaveRequest {
