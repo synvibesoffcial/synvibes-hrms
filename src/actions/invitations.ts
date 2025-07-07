@@ -236,6 +236,7 @@ export async function acceptInvitation(
           lastName: userData.lastName,
           password: hashedPassword,
           role: invitation.role as Role,
+          emailVerified: true, // Set email as verified since invitation serves as verification
         },
       });
 
@@ -257,6 +258,7 @@ export async function acceptInvitation(
       userId: result.id,
       email: result.email,
       role: result.role,
+      emailVerified: true,
     };
 
     const sessionToken = await encrypt(sessionData);

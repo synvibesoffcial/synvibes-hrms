@@ -261,19 +261,36 @@ export async function updateEmployeeProfile(
       return { success: false, error: "Insufficient permissions" };
     }
 
-    const updateData: Record<string, string | Date | null> = {};
+    // Separate updates for User and Employee tables
+    const userUpdateData: Record<string, string> = {};
+    const employeeUpdateData: Record<string, string | Date | null> = {};
     
-    if (updates.designation) updateData.designation = updates.designation;
-    if (updates.joinDate) updateData.joinDate = new Date(updates.joinDate);
-    if (updates.dateOfBirth) updateData.dateOfBirth = new Date(updates.dateOfBirth);
-    if (updates.gender) updateData.gender = updates.gender;
-    if (updates.address !== undefined) updateData.address = updates.address || null;
-    if (updates.contactInfo !== undefined) updateData.contactInfo = updates.contactInfo || null;
+    if (updates.firstName) userUpdateData.firstName = updates.firstName;
+    if (updates.lastName) userUpdateData.lastName = updates.lastName;
+    
+    if (updates.designation) employeeUpdateData.designation = updates.designation;
+    if (updates.joinDate) employeeUpdateData.joinDate = new Date(updates.joinDate);
+    if (updates.dateOfBirth) employeeUpdateData.dateOfBirth = new Date(updates.dateOfBirth);
+    if (updates.gender) employeeUpdateData.gender = updates.gender;
+    if (updates.address !== undefined) employeeUpdateData.address = updates.address || null;
+    if (updates.contactInfo !== undefined) employeeUpdateData.contactInfo = updates.contactInfo || null;
 
+    // Update User table if needed
+    if (Object.keys(userUpdateData).length > 0) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: userUpdateData
+      });
+    }
+
+    // Update Employee table
     const employee = await prisma.employee.update({
       where: { userId },
-      data: updateData
+      data: employeeUpdateData
     });
+
+    revalidatePath('/employee/profileSection');
+    revalidatePath('/employee/dashboard');
 
     return { 
       success: true, 
