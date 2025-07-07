@@ -203,7 +203,7 @@ export async function createEmployeeProfile(
 
 export async function getEmployeeProfile(userId: string) {
   try {
-    const employee = await (prisma as any).employee.findUnique({
+    const employee = await prisma.employee.findUnique({
       where: { userId },
       include: {
         user: {

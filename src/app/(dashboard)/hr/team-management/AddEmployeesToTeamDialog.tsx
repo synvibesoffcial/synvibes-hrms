@@ -15,9 +15,15 @@ type Employee = {
   firstName: string
   lastName: string
   empId: string
+  user: {
+    email: string
+  }
   teams: Array<{
+    id: string
+    employeeId: string
+    teamId: string
+    joinedAt: Date
     team: {
-      id: string
       name: string
       department: {
         name: string
@@ -62,7 +68,7 @@ export default function AddEmployeesToTeamDialog({
 
   // Filter employees that are not already assigned to this specific team
   const availableForThisTeam = availableEmployees.filter(emp => 
-    !emp.teams.some(teamAssignment => teamAssignment.team.id === team.id)
+    !emp.teams.some(teamAssignment => teamAssignment.teamId === team.id)
   )
 
   const toggleEmployee = (employeeId: string) => {

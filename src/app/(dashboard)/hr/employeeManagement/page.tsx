@@ -68,14 +68,34 @@ const employeeManagementPage = async() => {
                                           </code>
                                       </TableCell>
                                       <TableCell>
-                                          <Badge className="bg-blue-100 text-blue-800">
-                                              {employee.team?.department?.name || 'Not Assigned'}
-                                          </Badge>
+                                          {employee.teams && employee.teams.length > 0 ? (
+                                              <div className="flex flex-wrap gap-1">
+                                                  {employee.teams.map((employeeTeam) => (
+                                                      <Badge key={employeeTeam.id} className="bg-blue-100 text-blue-800">
+                                                          {employeeTeam.team.department.name}
+                                                      </Badge>
+                                                  ))}
+                                              </div>
+                                          ) : (
+                                              <Badge className="bg-gray-100 text-gray-600">
+                                                  Not Assigned
+                                              </Badge>
+                                          )}
                                       </TableCell>
                                       <TableCell>
-                                          <Badge className="bg-green-100 text-green-800">
-                                              {employee.team?.name || 'Not Assigned'}
-                                          </Badge>
+                                          {employee.teams && employee.teams.length > 0 ? (
+                                              <div className="flex flex-wrap gap-1">
+                                                  {employee.teams.map((employeeTeam) => (
+                                                      <Badge key={employeeTeam.id} className="bg-green-100 text-green-800">
+                                                          {employeeTeam.team.name}
+                                                      </Badge>
+                                                  ))}
+                                              </div>
+                                          ) : (
+                                              <Badge className="bg-gray-100 text-gray-600">
+                                                  Not Assigned
+                                              </Badge>
+                                          )}
                                       </TableCell>
                                       <TableCell>
                                           <span className="text-sm text-gray-600">

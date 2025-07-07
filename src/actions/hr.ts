@@ -294,7 +294,7 @@ export async function deleteTeam(id: string): Promise<{ success: boolean; messag
 
   try {
     // Check if team has employees using the junction table
-    const employeesCount = await (prisma as any).employeeTeam.count({
+    const employeesCount = await prisma.employeeTeam.count({
       where: { teamId: id },
     });
 
@@ -355,7 +355,7 @@ export async function assignEmployeesToTeam(teamId: string, prevState: FormState
     }
 
     // Create EmployeeTeam relationships for employees not already in this team
-    const existingAssignments = await (prisma as any).employeeTeam.findMany({
+    const existingAssignments = await prisma.employeeTeam.findMany({
       where: {
         teamId: teamId,
         employeeId: { in: employeeIds },
@@ -363,7 +363,7 @@ export async function assignEmployeesToTeam(teamId: string, prevState: FormState
       select: { employeeId: true },
     });
 
-    const existingEmployeeIds = existingAssignments.map((ea: any) => ea.employeeId);
+    const existingEmployeeIds = existingAssignments.map((ea) => ea.employeeId);
     const newEmployeeIds = employeeIds.filter(id => !existingEmployeeIds.includes(id));
 
     if (newEmployeeIds.length === 0) {
@@ -373,7 +373,7 @@ export async function assignEmployeesToTeam(teamId: string, prevState: FormState
     }
 
     // Create new team assignments
-    await (prisma as any).employeeTeam.createMany({
+    await prisma.employeeTeam.createMany({
       data: newEmployeeIds.map(employeeId => ({
         employeeId,
         teamId,
@@ -399,7 +399,7 @@ export async function removeEmployeeFromTeam(employeeId: string, teamId: string)
   const session = await checkHRAuthorization();
 
   try {
-    const employeeTeam = await (prisma as any).employeeTeam.findUnique({
+    const employeeTeam = await prisma.employeeTeam.findUnique({
       where: {
         employeeId_teamId: {
           employeeId,
@@ -423,7 +423,7 @@ export async function removeEmployeeFromTeam(employeeId: string, teamId: string)
       };
     }
 
-    await (prisma as any).employeeTeam.delete({
+    await prisma.employeeTeam.delete({
       where: {
         employeeId_teamId: {
           employeeId,
@@ -455,8 +455,7 @@ export async function removeEmployeeFromTeam(employeeId: string, teamId: string)
 export async function getAllDepartments() {
   await checkHRAuthorization();
   
-  // Using type assertion until Prisma client is regenerated
-  return await (prisma as any).department.findMany({
+  return await prisma.department.findMany({
     include: {
       teams: {
         include: {
@@ -484,8 +483,7 @@ export async function getAllDepartments() {
 export async function getAllTeams() {
   await checkHRAuthorization();
   
-  // Using type assertion until Prisma client is regenerated
-  return await (prisma as any).team.findMany({
+  return await prisma.team.findMany({
     include: {
       department: true,
       employees: {
@@ -510,8 +508,7 @@ export async function getAllTeams() {
 export async function getAllEmployees() {
   await checkHRAuthorization();
   
-  // Using type assertion until Prisma client is regenerated
-  return await (prisma as any).employee.findMany({
+  return await prisma.employee.findMany({
     select: {
       id: true,
       firstName: true,
@@ -551,9 +548,13 @@ export async function getEmployeeById(employeeId: string) {
     where: { id: employeeId },
     include: {
       user: true,
-      team: {
+      teams: {
         include: {
-          department: true,
+          team: {
+            include: {
+              department: true,
+            },
+          },
         },
       },
       leaves: {

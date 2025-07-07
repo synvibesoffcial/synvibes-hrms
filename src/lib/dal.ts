@@ -15,7 +15,20 @@ export async function verifySession() {
 }
 
 export async function getEmployeeByUserId(userId: string) {
-  const employee = await prisma.employee.findUnique({ where: { userId } });
+  const employee = await prisma.employee.findUnique({ 
+    where: { userId },
+    include: {
+      teams: {
+        include: {
+          team: {
+            include: {
+              department: true,
+            },
+          },
+        },
+      },
+    },
+  });
   return employee;
 }
 

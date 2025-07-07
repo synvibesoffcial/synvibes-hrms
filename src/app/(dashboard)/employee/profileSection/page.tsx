@@ -103,10 +103,16 @@ export default async function ProfileSectionPage() {
                   <p className="text-gray-900 mt-1">{employee.contactInfo}</p>
                 </div>
               )}
-              {employee.teamId && (
+              {employee.teams && employee.teams.length > 0 && (
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <label className="text-sm font-medium text-gray-600">Team ID</label>
-                  <p className="text-gray-900 mt-1">{employee.teamId}</p>
+                  <label className="text-sm font-medium text-gray-600">Teams</label>
+                  <div className="mt-1 space-y-1">
+                    {employee.teams.map((employeeTeam) => (
+                      <div key={employeeTeam.id} className="text-gray-900">
+                        {employeeTeam.team.name} ({employeeTeam.team.department.name})
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

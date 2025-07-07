@@ -241,19 +241,23 @@ export default async function EmployeeProfilePage({ params }: EmployeeProfilePag
                 </div>
               )}
 
-              {employee.team && (
+              {employee.teams && employee.teams.length > 0 && (
                 <div>
                   <p className="text-sm font-medium text-gray-600 flex items-center gap-2">
                     <Building className="w-4 h-4" />
-                    Team & Department
+                    Teams & Departments
                   </p>
-                  <div className="flex gap-2 mt-1">
-                    <Badge className="bg-blue-100 text-blue-800">
-                      {employee.team.name}
-                    </Badge>
-                    <Badge className="bg-purple-100 text-purple-800">
-                      {employee.team.department.name}
-                    </Badge>
+                  <div className="space-y-2 mt-1">
+                    {employee.teams.map((employeeTeam) => (
+                      <div key={employeeTeam.id} className="flex gap-2">
+                        <Badge className="bg-blue-100 text-blue-800">
+                          {employeeTeam.team.name}
+                        </Badge>
+                        <Badge className="bg-purple-100 text-purple-800">
+                          {employeeTeam.team.department.name}
+                        </Badge>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
