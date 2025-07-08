@@ -51,7 +51,7 @@ export async function signup(prevState: FormState, formData: FormData): Promise<
   verificationExpires.setHours(verificationExpires.getHours() + 24); // Expires in 24 hours
   
   // Create user with email verification fields
-  const user = await prisma.user.create({
+  await prisma.user.create({
     data: {
       email,
       password: hashed,
@@ -76,17 +76,7 @@ export async function signup(prevState: FormState, formData: FormData): Promise<
     console.error('Failed to send verification email:', emailResult.error);
   }
   
-  // Create session but don't redirect to dashboard until email is verified
-  const session = await encrypt({ userId: user.id, role: null, emailVerified: false });
-  const cookieStore = await cookies();
-  cookieStore.set("session", session, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-  });
-  
+  // Don't create session - user must verify email first
   return {
     success: true,
     redirectPath: "/verify-email-sent",

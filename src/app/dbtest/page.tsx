@@ -108,8 +108,8 @@ export default function TestPage() {
             <tr key={`${record.fingerprint_id}-${index}`}>
               <td className="border p-2">{record.fingerprint_id}</td>
               <td className="border p-2">{new Date(record.timestamp).toLocaleString()}</td>
-              <td className="border p-2">{record.lat}</td>
-              <td className="border p-2">{record.lon}</td>  
+              <td className="border p-2">{Number(record.lat).toFixed(6)}</td>
+              <td className="border p-2">{Number(record.lon).toFixed(6)}</td>  
             </tr>
           ))}
         </tbody>
@@ -192,10 +192,10 @@ export default function TestPage() {
                   )}
                 </td>
                 <td className="border p-2">
-                  {record.lat !== null ? record.lat.toFixed(6) : '-'}
+                  {record.lat !== null ? Number(record.lat).toFixed(6) : '-'}
                 </td>
                 <td className="border p-2">
-                  {record.lon !== null ? record.lon.toFixed(6) : '-'}
+                  {record.lon !== null ? Number(record.lon).toFixed(6) : '-'}
                 </td>
               </tr>
             ))}

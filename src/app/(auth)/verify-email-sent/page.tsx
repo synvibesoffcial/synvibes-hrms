@@ -93,9 +93,31 @@ function VerifyEmailSentContent() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-5 h-5 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-xs font-bold mt-0.5">3</span>
-                    Sign in to your account and start using Synvibes HRMS
+                    Start using Synvibes HRMS once granted role by admin
                   </li>
                 </ul>
+              </div>
+
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                <div className="flex items-start gap-2 text-amber-800">
+                  <span className="text-amber-600 text-lg">⚠️</span>
+                  <div className="space-y-2">
+                    <p className="font-medium">If you didn&apos;t receive the email:</p>
+                    <ul className="text-sm space-y-1 text-amber-700">
+                      <li>• The email address you entered might be incorrect. You can{" "}
+                        <Link href="/sign-up" className="text-amber-600 hover:text-amber-800 font-medium underline">
+                          go back to sign up
+                        </Link>{" "}
+                        and try again with the correct email address.
+                      </li>
+                      <li>• If your email address was correct and you still didn&apos;t receive the email, please contact us at{" "}
+                        <a href="mailto:info@synvibes.com" className="text-amber-600 hover:text-amber-800 font-medium underline">
+                          info@synvibes.com
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
               </div>
 
               <div className="border-t pt-6">

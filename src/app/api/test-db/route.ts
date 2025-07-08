@@ -1,5 +1,28 @@
 import mysql from 'mysql2/promise';
 
+interface AttendanceRecord {
+  fingerprint_id: string;
+  timestamp: string;
+  lat: string | number | null;
+  lon: string | number | null;
+  [key: string]: unknown;
+}
+
+interface UserAttendanceRecord {
+  fingerprint_id: string;
+  name: string;
+  employee_id: string;
+  location: string;
+  company: string;
+  designation: string;
+  payroll: string;
+  user_created_at: string;
+  attendance_timestamp: string;
+  lat: string | number | null;
+  lon: string | number | null;
+  [key: string]: unknown;
+}
+
 export async function GET() {
   try {
     const connection = await mysql.createConnection({
@@ -31,9 +54,26 @@ export async function GET() {
       ORDER BY u.fingerprint_id, a.timestamp DESC
     `);
 
+    // Convert lat and lon from strings to numbers with validation
+    const processedAttendance = (attendance as AttendanceRecord[]).map(record => ({
+      ...record,
+      lat: record.lat !== null && record.lat !== undefined ? Number(record.lat) : null,
+      lon: record.lon !== null && record.lon !== undefined ? Number(record.lon) : null
+    }));
+
+    const processedUserAttendanceRecords = (userAttendanceRecords as UserAttendanceRecord[]).map(record => ({
+      ...record,
+      lat: record.lat !== null && record.lat !== undefined ? Number(record.lat) : null,
+      lon: record.lon !== null && record.lon !== undefined ? Number(record.lon) : null
+    }));
+
     await connection.end();
 
-    return new Response(JSON.stringify({ attendance, users, userAttendanceRecords }), {
+    return new Response(JSON.stringify({ 
+      attendance: processedAttendance, 
+      users, 
+      userAttendanceRecords: processedUserAttendanceRecords 
+    }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
