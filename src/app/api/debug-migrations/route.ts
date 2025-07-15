@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 
+interface Migration {
+  migration_name: string;
+  finished_at: Date;
+  applied_steps_count: number;
+}
+
 export async function GET() {
   try {
     console.log('🔍 Debug Migrations: Checking migration status...');
@@ -14,14 +20,14 @@ export async function GET() {
       )
     `;
     
-    let migrations: any[] = [];
+    let migrations: Migration[] = [];
     if (migrationTableExists) {
       // Get migration history
       migrations = await prisma.$queryRaw`
         SELECT migration_name, finished_at, applied_steps_count
         FROM _prisma_migrations
         ORDER BY finished_at DESC
-      ` as any[];
+      ` as Migration[];
     }
     
     // Check current schema version
