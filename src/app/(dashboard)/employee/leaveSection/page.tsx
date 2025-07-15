@@ -31,7 +31,7 @@ export default async function LeaveSectionPage() {
   return (
     <div className="space-y-8">
       <div className="flex items-center gap-3 mt-8">
-        <Link href="/employee/dashboard/">
+        <Link href="/employee//">
           <Button variant="outline" size="sm">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Dashboard

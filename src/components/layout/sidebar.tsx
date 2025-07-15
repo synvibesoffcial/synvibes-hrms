@@ -120,7 +120,7 @@ const roleBasedNavigation: RoleBasedNavigation = {
   employee: [
     {
       title: "Dashboard",
-      href: "/employee/dashboard",
+      href: "/employee/",
       icon: Home,
     },
     // {

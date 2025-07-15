@@ -300,7 +300,7 @@ export default function EmployeeOnboardingForm({ user }: { user: User }) {
               {/* <Button
                 type="button"
                 variant="outline"
-                onClick={() => router.push("/employee/dashboard")}
+                onClick={() => router.push("/employee/")}
                 disabled={isSubmitting}
                 className="flex-1 border-gray-300"
               >

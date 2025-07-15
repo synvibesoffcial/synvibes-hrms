@@ -23,6 +23,20 @@ export interface InvitationEmailData {
   companyName?: string;
 }
 
+export interface PasswordResetEmailData {
+  recipientEmail: string;
+  recipientName: string;
+  resetToken: string;
+  companyName?: string;
+}
+
+export interface VerificationEmailData {
+  recipientEmail: string;
+  recipientName: string;
+  verificationToken: string;
+  companyName?: string;
+}
+
 export async function sendInvitationEmail(data: InvitationEmailData) {
   const {
     recipientEmail,
@@ -177,12 +191,7 @@ export async function sendInvitationEmail(data: InvitationEmailData) {
   }
 }
 
-export interface VerificationEmailData {
-  recipientEmail: string;
-  recipientName: string;
-  verificationToken: string;
-  companyName?: string;
-}
+
 
 export async function sendVerificationEmail(data: VerificationEmailData) {
   const {
@@ -336,12 +345,7 @@ export async function sendVerificationEmail(data: VerificationEmailData) {
   }
 }
 
-export interface PasswordResetEmailData {
-  recipientEmail: string;
-  recipientName: string;
-  resetToken: string;
-  companyName?: string;
-}
+
 
 export async function sendPasswordResetEmail(data: PasswordResetEmailData) {
   const {

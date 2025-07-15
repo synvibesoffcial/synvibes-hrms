@@ -5,7 +5,7 @@ import prisma from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 
 import type { User } from '@prisma/client';
-import { verifySession, getUserById } from "@/lib/dal";
+import { verifySession } from "@/lib/dal";
 import type { EmployeeOnboardingData } from "@/types/employee";
 
 // Employee validation schema - moved inline since we can't export non-async values
@@ -105,99 +105,12 @@ export async function createEmployee(user: User, prevState: FormState, formData:
     return {
       message: 'Employee profile created successfully!',
       success: true,
-      redirectPath: '/employee/dashboard',
+      redirectPath: '/employee/',
     };
   } catch {
     return {
       message: 'Database Error: Failed to Create Employee.',
     };
-  }
-}
-
-export async function createEmployeeProfile(
-  userId: string,
-  data: EmployeeOnboardingData
-) {
-  try {
-    // For onboarding, we're more lenient with session verification
-    const session = await verifySession();
-    
-    // Check if user exists first
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        employee: true
-      }
-    });
-
-    if (!user) {
-      return { success: false, error: "User not found" };
-    }
-
-    // If there's no session, but user exists and has no employee profile, allow creation
-    // This handles the onboarding flow after invitation acceptance
-    if (!session) {
-      // Only allow if user doesn't have an employee profile yet
-      if (user.employee) {
-        return { success: false, error: "Employee profile already exists" };
-      }
-      // Continue with profile creation for new users
-    } else {
-      // If session exists, verify the user is creating their own profile or has admin rights
-      if (session.userId !== userId) {
-        const currentUser = await prisma.user.findUnique({
-          where: { id: session.userId as string },
-          select: { role: true }
-        });
-
-        if (!currentUser || !['admin', 'superadmin', 'hr'].includes(currentUser.role || '')) {
-          return { success: false, error: "Insufficient permissions" };
-        }
-      }
-    }
-
-    // Additional check for employee profile (already checked above in user query)
-    if (user.employee) {
-      return { success: false, error: "Employee profile already exists" };
-    }
-
-    // Check if empId is unique
-    const existingEmpId = await prisma.employee.findUnique({
-      where: { empId: data.empId }
-    });
-
-    if (existingEmpId) {
-      return { success: false, error: "Employee ID already exists" };
-    }
-
-    // Create employee profile
-    const employee = await prisma.employee.create({
-      data: {
-        userId,
-        empId: data.empId,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        designation: data.designation,
-        joinDate: new Date(data.joinDate),
-        dateOfBirth: new Date(data.dateOfBirth),
-        gender: data.gender,
-        address: data.address || null,
-        contactInfo: data.contactInfo || null,
-      }
-    });
-
-    return { 
-      success: true, 
-      message: "Employee profile created successfully",
-      employee: {
-        id: employee.id,
-        empId: employee.empId,
-        designation: employee.designation
-      }
-    };
-  } catch (error) {
-    console.error("Error creating employee profile:", error);
-    return { success: false, error: "Failed to create employee profile" };
   }
 }
 
@@ -290,7 +203,7 @@ export async function updateEmployeeProfile(
     });
 
     revalidatePath('/employee/profileSection');
-    revalidatePath('/employee/dashboard');
+    revalidatePath('/employee/');
 
     return { 
       success: true, 
@@ -300,77 +213,5 @@ export async function updateEmployeeProfile(
   } catch (error) {
     console.error("Error updating employee profile:", error);
     return { success: false, error: "Failed to update employee profile" };
-  }
-}
-
-export async function getUserForOnboarding(userId: string) {
-  try {
-    // For onboarding, we're more lenient with session verification
-    // The user might have just been created and redirected from invitation acceptance
-    const session = await verifySession();
-    
-    // If no session, we'll still check if the user exists and has no employee profile
-    // This allows for onboarding flow after invitation acceptance
-    if (!session) {
-      // Check if user exists and doesn't have an employee profile yet
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        include: {
-          employee: true
-        }
-      });
-
-      if (!user) {
-        return { success: false, error: "User not found" };
-      }
-
-      // If user already has an employee profile, they shouldn't be onboarding
-      if (user.employee) {
-        return { success: false, error: "User already has a complete profile" };
-      }
-
-      // Allow onboarding for new users without employee profiles
-      return {
-        success: true,
-        user: {
-          id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          role: user.role || 'employee'
-        }
-      };
-    }
-
-    // If session exists, verify permissions
-    if (session.userId !== userId) {
-      const currentUser = await prisma.user.findUnique({
-        where: { id: session.userId as string },
-        select: { role: true }
-      });
-
-      if (!['admin', 'superadmin', 'hr'].includes(currentUser?.role || '')) {
-        return { success: false, error: "Insufficient permissions" };
-      }
-    }
-
-    const user = await getUserById(userId);
-    if (!user) {
-      return { success: false, error: "User not found" };
-    }
-
-    return {
-      success: true,
-      user: {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role || 'employee'
-      }
-    };
-  } catch (error) {
-    console.error("Error fetching user for onboarding:", error);
-    return { success: false, error: "Failed to fetch user data" };
   }
 }

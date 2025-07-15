@@ -33,6 +33,16 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+
       - name: Install dependencies
         run: npm ci
 
@@ -43,7 +53,6 @@ jobs:
         run: |
           cd /home/deploy/actions-runner/_work/synvibes-hrms/synvibes-hrms
           npx prisma migrate deploy
-
 
       - name: Deploy to production
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
