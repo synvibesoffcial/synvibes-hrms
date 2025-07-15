@@ -275,16 +275,30 @@ export async function signin(prevState: FormState, formData: FormData): Promise<
 }
 
 export async function getAllUsers() {
-  return prisma.user.findMany({
-    select: {
-      id: true,
-      email: true,
-      firstName: true,
-      lastName: true,
-      role: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  try {
+    console.log('🔍 getAllUsers: Starting database query...');
+    console.log('🔍 DATABASE_URL exists:', !!process.env.DATABASE_URL);
+    console.log('🔍 NODE_ENV:', process.env.NODE_ENV);
+    
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    
+    console.log('🔍 getAllUsers: Found', users.length, 'users');
+    console.log('🔍 getAllUsers: First few users:', users.slice(0, 3).map(u => ({ email: u.email, role: u.role })));
+    
+    return users;
+  } catch (error) {
+    console.error('❌ getAllUsers: Database error:', error);
+    throw error;
+  }
 }
 
 export async function updateUserRole(userId: string, newRole: Role) {
