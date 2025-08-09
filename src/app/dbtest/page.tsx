@@ -2,44 +2,21 @@
 
 import { useState, useEffect } from 'react';
 
-interface Attendance {
-fingerprint_id: number; // foreign key
-timestamp: Date;
-lat: number;
-lon: number;
-}
 
-type Payroll = 'Reliever' | 'Consultant' | 'Employee' | 'other';
 
-interface User {
-fingerprint_id: number; // primary key
-name: string;
-employee_id: string;
-created_at: Date;
-location: string;
-company: string;
-designation: string;
-payroll: Payroll;
-}
-
-interface UserAttendanceRecord {
-fingerprint_id: number;
-name: string;
-employee_id: string;
-location: string;
-company: string;
-designation: string;
-payroll: Payroll;
-user_created_at: Date;
-attendance_timestamp: Date | null;
-lat: number | null;
-lon: number | null;
+interface EmployeeAttendanceRecord {
+  emp_id: string | null;
+  fingerprint_id: string;
+  name: string | null;
+  company: string | null;
+  timestamp: Date;
+  latitude: number | null;
+  longitude: number | null;
+  is_active: boolean | null;
 }
 
 export default function TestPage() {
-  const [attendanceData, setAttendanceData] = useState<Attendance[]>([]);
-  const [usersData, setUsersData] = useState<User[]>([]);
-  const [userAttendanceData, setUserAttendanceData] = useState<UserAttendanceRecord[]>([]);
+  const [employeeAttendanceData, setEmployeeAttendanceData] = useState<EmployeeAttendanceRecord[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [errorDetails, setErrorDetails] = useState<{ details?: string; code?: string } | null>(null);
 
@@ -50,9 +27,7 @@ export default function TestPage() {
         const result = await response.json();
         
         if (response.ok) {
-          setAttendanceData(result.attendance);
-          setUsersData(result.users);
-          setUserAttendanceData(result.userAttendanceRecords);
+          setEmployeeAttendanceData(result.employeeAttendanceRecords);
           setError(null);
           setErrorDetails(null);
         } else {
@@ -93,109 +68,50 @@ export default function TestPage() {
         </div>
       )}
 
-      <h2 className="text-xl font-semibold mt-4">Attendance Records</h2>
-      <table className="w-full border-collapse border mt-2">
-        <thead>
-          <tr>
-            <th className="border p-2">Fingerprint ID</th>
-            <th className="border p-2">Timestamp</th>
-            <th className="border p-2">Latitude</th>
-            <th className="border p-2">Longitude</th>
-          </tr>
-        </thead>
-        <tbody>
-          {attendanceData.map((record, index) => (
-            <tr key={`${record.fingerprint_id}-${index}`}>
-              <td className="border p-2">{record.fingerprint_id}</td>
-              <td className="border p-2">{new Date(record.timestamp).toLocaleString()}</td>
-              <td className="border p-2">{Number(record.lat).toFixed(6)}</td>
-              <td className="border p-2">{Number(record.lon).toFixed(6)}</td>  
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <h2 className="text-xl font-semibold mt-4">Users</h2>
-      <table className="w-full border-collapse border mt-2">
-        <thead>
-          <tr>
-            <th className="border p-2">ID</th>
-            <th className="border p-2">Name</th>
-            <th className="border p-2">Employee ID</th>
-            <th className="border p-2">Created At</th>
-            <th className="border p-2">Location</th>
-            <th className="border p-2">Company</th>
-            <th className="border p-2">Designation</th>
-            <th className="border p-2">Payroll</th>
-          </tr>
-        </thead>
-        <tbody>
-          {usersData.map((user) => (
-            <tr key={user.fingerprint_id}>
-              <td className="border p-2">{user.fingerprint_id}</td>
-              <td className="border p-2">{user.name}</td>
-              <td className="border p-2">{user.employee_id}</td>
-              <td className="border p-2">{user.created_at.toString()}</td>
-              <td className="border p-2">{user.location}</td>
-              <td className="border p-2">{user.company}</td>
-              <td className="border p-2">{user.designation}</td>
-              <td className="border p-2">{user.payroll}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
       <h2 className="text-xl font-semibold mt-6 mb-2 text-blue-600">Employee Attendance Records</h2>
-      <p className="text-gray-600 mb-4">Combined view of users and their attendance records (linked by fingerprint_id)</p>
+      <p className="text-gray-600 mb-4">Combined view of employees and their attendance records (linked by fingerprint_id)</p>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border mt-2 text-sm">
           <thead className="bg-blue-50">
             <tr>
+              <th className="border p-2 text-left">Emp ID</th>
               <th className="border p-2 text-left">Fingerprint ID</th>
               <th className="border p-2 text-left">Name</th>
-              <th className="border p-2 text-left">Employee ID</th>
-              <th className="border p-2 text-left">Designation</th>
               <th className="border p-2 text-left">Company</th>
-              <th className="border p-2 text-left">Location</th>
-              <th className="border p-2 text-left">Payroll Type</th>
-              <th className="border p-2 text-left">Attendance Time</th>
+              <th className="border p-2 text-left">Timestamp</th>
               <th className="border p-2 text-left">Latitude</th>
               <th className="border p-2 text-left">Longitude</th>
+              <th className="border p-2 text-left">Is Active</th>
             </tr>
           </thead>
           <tbody>
-            {userAttendanceData.map((record, index) => (
-              <tr key={`${record.fingerprint_id}-${index}`} className={record.attendance_timestamp ? "bg-white" : "bg-gray-50"}>
-                <td className="border p-2">{record.fingerprint_id}</td>
-                <td className="border p-2 font-medium">{record.name}</td>
-                <td className="border p-2">{record.employee_id}</td>
-                <td className="border p-2">{record.designation}</td>
-                <td className="border p-2">{record.company}</td>
-                <td className="border p-2">{record.location}</td>
+            {employeeAttendanceData.map((record, index) => (
+              <tr key={`${record.fingerprint_id}-${index}`} className={record.emp_id ? "bg-white" : "bg-gray-50"}>
+                <td className="border p-2">{record.emp_id || '-'}</td>
+                <td className="border p-2 font-medium">{record.fingerprint_id}</td>
+                <td className="border p-2 font-medium">{record.name || '-'}</td>
+                <td className="border p-2">{record.company || '-'}</td>
                 <td className="border p-2">
-                  <span className={`px-2 py-1 rounded text-xs ${
-                    record.payroll === 'Employee' ? 'bg-green-100 text-green-800' :
-                    record.payroll === 'Consultant' ? 'bg-blue-100 text-blue-800' :
-                    record.payroll === 'Reliever' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-gray-100 text-gray-800'
-                  }`}>
-                    {record.payroll}
+                  <span className="text-blue-600">
+                    {new Date(record.timestamp).toLocaleString()}
                   </span>
                 </td>
                 <td className="border p-2">
-                  {record.attendance_timestamp ? (
-                    <span className="text-green-600">
-                      {new Date(record.attendance_timestamp).toLocaleString()}
+                  {record.latitude !== null ? Number(record.latitude).toFixed(6) : '-'}
+                </td>
+                <td className="border p-2">
+                  {record.longitude !== null ? Number(record.longitude).toFixed(6) : '-'}
+                </td>
+                <td className="border p-2">
+                  {record.is_active !== null ? (
+                    <span className={`px-2 py-1 rounded text-xs ${
+                      record.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {record.is_active ? 'Active' : 'Inactive'}
                     </span>
                   ) : (
-                    <span className="text-gray-400 italic">No attendance</span>
+                    <span className="text-gray-400 italic">-</span>
                   )}
-                </td>
-                <td className="border p-2">
-                  {record.lat !== null ? Number(record.lat).toFixed(6) : '-'}
-                </td>
-                <td className="border p-2">
-                  {record.lon !== null ? Number(record.lon).toFixed(6) : '-'}
                 </td>
               </tr>
             ))}
@@ -203,7 +119,7 @@ export default function TestPage() {
         </table>
       </div>
 
-      {userAttendanceData.length === 0 && !error && (
+      {employeeAttendanceData.length === 0 && !error && (
         <div className="text-center py-4 text-gray-500">
           No employee attendance records found.
         </div>

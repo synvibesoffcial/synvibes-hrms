@@ -1,25 +1,16 @@
 import mysql from 'mysql2/promise';
 
-interface AttendanceRecord {
-  fingerprint_id: string;
-  timestamp: string;
-  lat: string | number | null;
-  lon: string | number | null;
-  [key: string]: unknown;
-}
 
-interface UserAttendanceRecord {
+
+interface EmployeeAttendanceRecord {
+  emp_id: string | null;
   fingerprint_id: string;
-  name: string;
-  employee_id: string;
-  location: string;
-  company: string;
-  designation: string;
-  payroll: string;
-  user_created_at: string;
-  attendance_timestamp: string;
-  lat: string | number | null;
-  lon: string | number | null;
+  name: string | null;
+  company: string | null;
+  timestamp: string;
+  latitude: string | number | null;
+  longitude: string | number | null;
+  is_active: boolean | number | null;
   [key: string]: unknown;
 }
 
@@ -32,47 +23,34 @@ export async function GET() {
       database: process.env.DB_NAME,
     });
 
-    const [attendance] = await connection.execute('SELECT * FROM attendance');
-    const [users] = await connection.execute('SELECT * FROM users');
-    
-    // Create joined records - User and Attendance records linked by fingerprint_id
-    const [userAttendanceRecords] = await connection.execute(`
+    // Create joined records - Employee and Attendance records linked by fingerprint_id
+    const [employeeAttendanceRecords] = await connection.execute(`
       SELECT 
-        u.fingerprint_id,
-        u.name,
-        u.employee_id,
-        u.location,
-        u.company,
-        u.designation,
-        u.payroll,
-        u.created_at as user_created_at,
-        a.timestamp as attendance_timestamp,
-        a.lat,
-        a.lon
-      FROM users u
-      LEFT JOIN attendance a ON u.fingerprint_id = a.fingerprint_id
-      ORDER BY u.fingerprint_id, a.timestamp DESC
+        a.emp_id,
+        e.fingerprint_id,
+        a.name,
+        a.company,
+        e.timestamp,
+        e.latitude,
+        e.longitude,
+        a.is_active
+      FROM employees e
+      LEFT JOIN attendance a ON e.fingerprint_id = a.fingerprint_id
+      ORDER BY e.fingerprint_id, e.timestamp DESC
     `);
 
-    // Convert lat and lon from strings to numbers with validation
-    const processedAttendance = (attendance as AttendanceRecord[]).map(record => ({
+    // Convert latitude and longitude from strings to numbers with validation
+    const processedEmployeeAttendanceRecords = (employeeAttendanceRecords as EmployeeAttendanceRecord[]).map(record => ({
       ...record,
-      lat: record.lat !== null && record.lat !== undefined ? Number(record.lat) : null,
-      lon: record.lon !== null && record.lon !== undefined ? Number(record.lon) : null
-    }));
-
-    const processedUserAttendanceRecords = (userAttendanceRecords as UserAttendanceRecord[]).map(record => ({
-      ...record,
-      lat: record.lat !== null && record.lat !== undefined ? Number(record.lat) : null,
-      lon: record.lon !== null && record.lon !== undefined ? Number(record.lon) : null
+      latitude: record.latitude !== null && record.latitude !== undefined ? Number(record.latitude) : null,
+      longitude: record.longitude !== null && record.longitude !== undefined ? Number(record.longitude) : null,
+      is_active: record.is_active !== null ? Boolean(record.is_active) : null
     }));
 
     await connection.end();
 
     return new Response(JSON.stringify({ 
-      attendance: processedAttendance, 
-      users, 
-      userAttendanceRecords: processedUserAttendanceRecords 
+      employeeAttendanceRecords: processedEmployeeAttendanceRecords 
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
