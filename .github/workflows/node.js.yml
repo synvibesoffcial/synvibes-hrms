@@ -51,13 +51,13 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          cd /home/deploy/actions-runner/_work/synvibes-hrms/synvibes-hrms
+          cd /home/deploy/actions-runner-synvibes-hrms/_work/synvibes-hrms/synvibes-hrms
           npx prisma migrate deploy
 
       - name: Deploy to production
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          cd /home/deploy/actions-runner/_work/synvibes-hrms/synvibes-hrms
+          cd /home/deploy/actions-runner-synvibes-hrms/_work/synvibes-hrms/synvibes-hrms
 
           # Create .env.production
           cat << EOF > .env.production
