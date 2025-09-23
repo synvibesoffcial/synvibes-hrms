@@ -45,7 +45,7 @@ const HRPage = async () => {
           </div>
           <h1 className="text-3xl font-bold text-gray-900">HR Dashboard</h1>
         </div>
-        <p className="text-gray-600">Manage human resources operations and employee lifecycle</p>
+        {/* <p className="text-gray-600">Manage human resources operations and employee lifecycle</p> */}
       </div>
 
       {/* Stats Cards */}
